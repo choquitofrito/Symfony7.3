@@ -156,9 +156,9 @@
   - [21.16. Utilisation de blocs dans twig avec AJAX](#2116-utilisation-de-blocs-dans-twig-avec-ajax)
     - [Exercices : Ajax avec Axios](#exercices--ajax-avec-axios)
   - [21.17. Ajax et Axios dans un script JS. Indispensable si script externe au Twig](#2117-ajax-et-axios-dans-un-script-js-indispensable-si-script-externe-au-twig)
-    - [21.17.1. Utilisation de FOSJsRoutingBundle pour générer les routes diréctement en JS](#21171-utilisation-de-fosjsroutingbundle-pour-générer-les-routes-diréctement-en-js)
-  - [21.18. AJAX en Symfony (Vanilla JS - juste théorie)](#2118-ajax-en-symfony-vanilla-js---juste-théorie)
-  - [21.19. Utilisation de blocs dans twig avec AJAX (Vanilla)](#2119-utilisation-de-blocs-dans-twig-avec-ajax-vanilla)
+    - [21.17.1. Utilisation de FOSJsRoutingBundle pour générer les routes diréctement en JS (opt)](#21171-utilisation-de-fosjsroutingbundle-pour-générer-les-routes-diréctement-en-js-opt)
+  - [21.18. AJAX en Symfony (Vanilla JS - juste théorie, optionnel)](#2118-ajax-en-symfony-vanilla-js---juste-théorie-optionnel)
+  - [21.19. Utilisation de blocs dans twig avec AJAX (Vanilla - opt)](#2119-utilisation-de-blocs-dans-twig-avec-ajax-vanilla---opt)
     - [Exercices : utilisation d'AJAX Vanilla](#exercices--utilisation-dajax-vanilla)
   - [21.20. DateTime et datepicker (Bootstrap)](#2120-datetime-et-datepicker-bootstrap)
   - [21.21. Validation des formulaires](#2121-validation-des-formulaires)
@@ -8261,7 +8261,7 @@ class LivreRepository extends ServiceEntityRepository
 <div id="div_resultats"></div>
 
 {# On a importé axios ici pour nous simplifier le code #}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js" integrity="sha512-emSwuKiMyYedRwflbZB2ghzX8Cw8fmNVgZ6yQNNXXagFzFOaQmbvQ1vmDkddHjm5AITcBIZfC7k4ShQSjgPAmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js" integrity="sha512-JSCFHhKDilTRRXe9ak/FJ28dcpOJxzQaCd3Xg8MyF6XFjODhy/YMCM8HW0TFDckNHWUewW+kfvhin43hKtJxAw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 {# Script qui gére l'appel Axios et qui modifiera le DOM  #}
 <script>
@@ -8389,8 +8389,7 @@ nouveau.
 
 3.  Rajoutez **le code Ajax** dans un bloc **javascripts** dans la même vue, le code doit faire appel à une action dans le controller qui gére la petition Ajax.
 
-```twig
-{% block javascripts %}
+```js
 {% block javascripts %}
 <!-- AJAX - AXIOS dans la page, sans avoir un script externe -->
 
@@ -8484,7 +8483,7 @@ Si on veut **utiliser un script externe JS dans une vue**, le script lui-même n
 
 **Une façon simple de gérer ce problème est d'utiliser les attributs 'data' des éléments de la page pour stocker les routes et puis y accéder depuis le script js au moment de faire l'appel AJAX**
 
-Par exemple, on peut stocker la route dans le **data** d'un bouton:
+Par exemple, on peut stocker la route dans le **dataset** d'un bouton:
 
 
 Page qui contient le DOM:
@@ -8505,7 +8504,7 @@ Script externe:
 </script>
 ```
 
-### 21.17.1. Utilisation de FOSJsRoutingBundle pour générer les routes diréctement en JS
+### 21.17.1. Utilisation de FOSJsRoutingBundle pour générer les routes diréctement en JS (opt)
 
 Une autre manière de résoudre le problème est d'utiliser le module **FOSJsRoutingBundle**.
 
@@ -8555,7 +8554,7 @@ Scripts (on a utilisé webpack!):
 
 <br>
 
-## 21.18. AJAX en Symfony (Vanilla JS - juste théorie)
+## 21.18. AJAX en Symfony (Vanilla JS - juste théorie, optionnel)
 
 **Objectif** : utiliser AJAX dans un template Twig
 
@@ -8646,7 +8645,7 @@ public function exemple1Traitement(Request $requeteAjax)
 <br>
 
 
-## 21.19. Utilisation de blocs dans twig avec AJAX (Vanilla)
+## 21.19. Utilisation de blocs dans twig avec AJAX (Vanilla - opt)
 
 <br>
 
@@ -8837,7 +8836,7 @@ La séquence peut être résumée en :
 
 **Code commenté :**
 
--   **Projet** projetFormulaires
+-   **Projet** ProjetFormulaires
 
 -   **Controller** ExemplesAjaxAxiosController, actions :
 
