@@ -41,10 +41,7 @@ php bin/console make:controller <nom du nouveau controller>
 
 Un fichier sera crée pour le controller, en plus d'un dossier et une vue dans *templates*
 
-Si on va utiliser des annotations (et on le fera):
-```console
-composer require annotations
-```
+
 
 
 ## Modèle et Entités

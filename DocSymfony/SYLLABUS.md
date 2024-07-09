@@ -127,10 +127,10 @@
     - [Exercices :](#exercices--1)
 - [20. Accès à la BD avec Query Builder](#20-accès-à-la-bd-avec-query-builder)
 - [21. Formulaires en Symfony](#21-formulaires-en-symfony)
-  - [21.1. Création d'un formulaire indépendant](#211-création-dun-formulaire-indépendant)
+  - [21.1. Création d'un formulaire indépendant (opt)](#211-création-dun-formulaire-indépendant-opt)
   - [21.2. Création d'un formulaire associé à une entité](#212-création-dun-formulaire-associé-à-une-entité)
     - [Exercice : création d'un formulaire associé à une entité](#exercice--création-dun-formulaire-associé-à-une-entité)
-  - [21.3. Création d'un formulaire pré-rempli avec les données d'une entité](#213-création-dun-formulaire-pré-rempli-avec-les-données-dune-entité)
+  - [21.3. Création d'un formulaire pré-rempli avec les données d'une entité (opt)](#213-création-dun-formulaire-pré-rempli-avec-les-données-dune-entité-opt)
   - [21.4. Action et Propriétés des champs du formulaire](#214-action-et-propriétés-des-champs-du-formulaire)
     - [21.4.1. Les boutons... où les mettre?](#2141-les-boutons-où-les-mettre)
     - [Exercice :](#exercice-)
@@ -5930,7 +5930,7 @@ En Symfony nous avons plusieurs options pour créer un formulaire :
 
 <br>
 
-## 21.1. Création d'un formulaire indépendant
+## 21.1. Création d'un formulaire indépendant (opt)
 
 On commence par l'exemple le plus simple: un form qui n'a rien à voir avec aucune entité de l'app.
 
@@ -5949,11 +5949,11 @@ Voici un exemple.
 1. **Créez le form dans le twig** :
    
 ```html
-<form action="{{ path('traitement_form_simple_post') }}" method="POST">
-    Nom:<input type="text" name="nom">
-    Age:<input type="number" name="age">   
-    <button type="submit">Envoyer POST</button> 
-</form>
+	<form action="{{ path('traitement_form_simple_get') }}" method="GET">
+		Nom:<input type="text" name="produit">
+		Age:<input type="number" name="prix">
+		<button class="btn-secondary" type="submit">Envoyer GET</button>
+	</form>
 ```
 Vous devez juste générer le chemin de l'action qui reçoit le formulaire en utilisant **path** avec le **name** de l'action.
 
@@ -5965,25 +5965,25 @@ b) $req->**query->get('nom')** (si le form était **GET**)
 Notez que le **name** de l'action est le *action* du Formulaire
 
 ```php
-#[Route("/exemples/formulaires/exemple/independent/traitement/post", name: "traitement_form_simple_post")]
-public function exempleIndependentTraitementPost(Request $req)
-{
-    // cette action traite un formulaire traditionnel POST et affiche le contenu dans une vue
-    // On obtient l'objet Request
-    // "request" contient le contenu du $_POST
+#[Route("/exemples/formulaires/exemple/independent/traitement/get", name: "traitement_form_simple_get")]
+    public function exempleIndependentTraitementGet(Request $req)
+    {
+        // cette action traite un formulaire traditionnel GET et affiche le contenu dans une vue
+        // On obtient l'objet Request
+        // "query" contient le contenu du $_GET
 
-    $nom = $req->request->get('nom'); // pas $req['nom'] ni $req->request['nom']
-    $age = $req->request->get('age'); // pas $req['age'] ni $req->request['age']
+        $produit = $req->query->get('produit'); // pas $req['produit'] ni $req->request['produit']
+        $prix = $req->query->get('prix'); // pas $req['prix'] ni $req->request['prix']
 
 
-    return $this->render(
-        "/exemples_formulaires/exemple_independent_traitement_post.html.twig",
-        [
-            'nom' => $nom,
-            'age' => $age
-        ]
-    );
-}
+        return $this->render(
+            "/exemples_formulaires/exemple_independent_traitement_get.html.twig",
+            [
+                'produit' => $produit,
+                'prix' => $prix
+            ]
+        );
+    }
 ```
 
 **Note**: pensez à **get** comme "obtenir" , rien à voir avec $_GET ou $_POST!
@@ -6045,6 +6045,7 @@ class AeroportFixtures extends Fixture
         
         $faker = Faker\Factory::create();
         for ($i = 0; $i < 5; $i++) {
+            // créez le hydrate et modifiez le construct dans l'entité!
             $aeroport = new Aeroport(
                 ['nom'=>$faker->city . " Airport",
                 'code'=>$faker->postcode,
@@ -6202,7 +6203,7 @@ Exemples:
 
 
 
-Il nous manque le **submit**, on le verra dans les sections suivantes.
+Il nous manque le **submit**, on le verra dans les sections suivantes, ainsi que la méthode et l'action.
 
 Nous n'allons pas rajouter un bouton de submit **dans la classe** du
 formulaire **car ce n'est pas une bonne pratique.**
@@ -6215,7 +6216,7 @@ formulaire **car ce n'est pas une bonne pratique.**
 
 <br>
 
-## 21.3. Création d'un formulaire pré-rempli avec les données d'une entité
+## 21.3. Création d'un formulaire pré-rempli avec les données d'une entité (opt)
 
 <br>
 
@@ -6313,7 +6314,8 @@ On **doit spécifier l'action à réaliser par le submit** (même avant créer l
 
 **Dans la classe du formulaire il n'y a pas d'action ni de méthode, tout les deux sont definis dans le controller ou la vue:**, car autrement le formulaire serait utilisable uniquement pour lancer une certaine action!
 
-Voici un exemple de définition d'action et de méthode.
+Voici un exemple de définition d'action et de méthode dans le controller 
+
 
 ```php
 #[Route("/insert/livre")]
@@ -6321,10 +6323,10 @@ public function insertLivre()
 {
     $livre = new Livre();
     $formulaireLivre = $this->createForm(LivreType::class, $livre, array(
-        'action' => $this->generateUrl("traitement_insert_livre"), 
+        'action' => $this->generateUrl("name_route_traitement"), 
         // name de la route
         // si on n'utilise pas le name d'une route on doit l'écrire à la main... mauvaise idée
-        // 'action' => "/exemples/formulaires/livre/rajouter", 
+        // 'action' => "/route/de/traitement", 
         'method' => 'POST'
     ));
     $vars = ['unFormulaire' => $formulaireLivre->createView()];
@@ -6496,6 +6498,8 @@ Pour **recevoir et traiter** les données introduites dans un formulaire nous de
 
 Pour le moment on a fait des forms et on les a affiché, mais on ne s'est pas occupé de traiter les données quand on fait submit.
 On pourrait créer alors une action pour afficher le form et une autre pour traiter les données, mais ça complexifierait le controller (trop d'actions!)
+
+**IMPORTANT!!**
 
 Selon **les bonnes pratiques de Symfony**, **on affiche le form et on le traite dans une même action**.
 
@@ -6802,7 +6806,7 @@ class ExemplesFormCrudUpdateController extends AbstractController
  ```
 
 
-2. Puis on crée l'actioon pour faire l'update
+2. Puis on crée l'action pour faire l'update
 
 **IMPORTANT**: Notez qu'on injecte un Livre 
 ```php
@@ -7693,7 +7697,7 @@ Attention aux **names** des contrôles car on les utilisera dans le traitement d
 
 (Fichier **exemple1_affichage.html.twig** dans **ProjetFormulairesSymfony**)
 
-```twig
+```js
 {% extends "base.html.twig" %}
 
 {% block body %}
@@ -8035,12 +8039,12 @@ Actions: **searchLivresFiltres**
 - Filtre par titre
 - Filtre par prix (min, max)
 - Filtre par nom d'Auteur (pour montrer la liaison avec une autre entité)
-- 
+  
 Le formulaire effectuera une recherche en fonction des critères et affichera les livres correspondants. Le contenu de la page changera dynamiquement en fonction des filtres sélectionnés, sans nécessiter de rechargement de la page.
 
 **Procédure** :
 
-1. Créez un formulaire (SearchFiltreLivresType) contenant tous les champs de filtrage.
+1. Créez un formulaire (SearchFiltreLivresType) contenant tous les champs de  filtre.
 2. Créez une vue pour afficher ce formulaire.
 3. Mettez en place une action pour traiter et afficher les résultats du formulaire. Cette action sera une action de traitement de formulaire standard, mais elle devra exécuter une requête en fonction des critères spécifiés dans le formulaire de recherche, plutôt que de simplement utiliser les méthodes findAll ou findBy classiques. Cette requête sera créée dans la classe LivreRepository et appelée à partir du contrôleur.
 4. Création de la méthode du repo
@@ -8062,7 +8066,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
-class RechercheiltreLivresType extends AbstractType
+class RechercheFiltreLivresType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
