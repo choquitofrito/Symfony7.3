@@ -13,12 +13,16 @@ class ClientAdresseFixtures extends Fixture
     // on peux complexifier la création des fixtures mais on va le faire très simple ici
     public function load(ObjectManager $manager)
     {
+
+
         $faker = Factory::create();
 
         // $faker = Faker\Factory::create('fr_FR');
 
         // créer quelques objets Adresse, stocker dans la BD
         for ($i = 0; $i < 4; $i++) {
+            // attention, on envoie un array, vous avez besoin d'hydrate
+            // et de modifier le constructeur dans l'entité Adresse
             $adresse = new Adresse([
                 'rue' => $faker->streetAddress,
                 'numero' => $faker->buildingNumber,
@@ -28,6 +32,7 @@ class ClientAdresseFixtures extends Fixture
             ]);
             $manager->persist($adresse);
         }
+
         $manager->flush();
 
         // obtenir les adresses et les mettre dans un array, tout dans une ligne

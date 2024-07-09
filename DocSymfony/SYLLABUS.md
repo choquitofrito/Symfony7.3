@@ -111,7 +111,7 @@
   - [17.4. Fixtures basées sur un fichier .sql](#174-fixtures-basées-sur-un-fichier-sql)
   - [17.4. Exclure un ou plusieurs tableaux du purge](#174-exclure-un-ou-plusieurs-tableaux-du-purge)
     - [Exercices :](#exercices-)
-  - [17.5. Fichier de reinitialisation de la BD et les fixtures, migration](#175-fichier-de-reinitialisation-de-la-bd-et-les-fixtures-migration)
+  - [17.5. Fichier batch: reinitialisation de la BD et les fixtures, migration](#175-fichier-batch-reinitialisation-de-la-bd-et-les-fixtures-migration)
 - [18. Accès à la BD avec DQL](#18-accès-à-la-bd-avec-dql)
   - [18.1. SELECT](#181-select)
     - [18.1.1. Requête qui renvoi un array d'arrays](#1811-requête-qui-renvoi-un-array-darrays)
@@ -4880,7 +4880,14 @@ Ici on a qu'une fixture (basée sur les Livres) mais on pourrait avoir plein.
 
 **Note**: si vous voulez générer de valeurs plus "réalistes" vous pouvez utiliser la librairie Faker (https://github.com/fakerphp/faker)
 
+```
+composer require fakerphp/faker
+```
+
 Vous avez un exemple dans **ProjetModel** (**ClientAdresseFixture.php**) où en plus on crée les liens entre deux entités.
+
+**ATTENTION:** Pour lancer le code suivant, assurez-vous d'avoir implementez l'hydrate dans vos entités.
+
 
 ```php
 <?php
@@ -4903,6 +4910,8 @@ class ClientAdresseFixture extends Fixture
 
         // créer quelques objets Adresse, stocker dans la BD
         for ($i = 0; $i < 4; $i++) {
+            // attention, on envoie un array, vous avez besoin d'hydrate
+            // et de modifier le constructeur dans l'entité Adresse
             $adresse = new Adresse([
                 'rue' => $faker->streetAddress,
                 'numero' => $faker->buildingNumber,
@@ -4946,7 +4955,7 @@ class ClientAdresseFixture extends Fixture
 
 <br>
 
-Certains Fixtures dépendent de fois d'autres. Si vous avez, par exemple, une Fixture qui relie deux entités (ex: **LinkClientsEmprunts** qui relie les Clients et les Emprunts), vous devez remplir les entités Clients et les Prêts **avant** de lancer la fixture qui lie les deux ("LinkClientsEmprunts"). 
+Certains Fixtures dépendent d'autres. Si vous avez, par exemple, une Fixture qui relie deux entités (ex: **LinkClientsEmprunts** qui relie les Clients et les Emprunts), vous devez remplir les entités Clients et les Prêts **avant** de lancer la fixture qui lie les deux ("LinkClientsEmprunts"). 
 
 Nous ne pouvons pas établir l'ordre dans lequel les fixtures seront exécutées, mais 
 nous pouvons spécifier qu'**une Fixture dépend d'une autre = doit attendre l'exécution d'une autre**). Nous aurons alors le même effet de séquence/ 
@@ -5265,7 +5274,7 @@ Dans ce cas, matable et autretable ne seront pas purgées.
 <br>
 
 
-## 17.5. Fichier de reinitialisation de la BD et les fixtures, migration
+## 17.5. Fichier batch: reinitialisation de la BD et les fixtures, migration
 
 Vous pouvez lancez un fichier migration.bat pour vous simplifier la ré-création de la BD et lancer les fixtures.
 Le fichier se trouve dans le dossier de la doc, copiez-le dans la racine de votre projet.

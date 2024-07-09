@@ -33,8 +33,20 @@ class Adresse
     #[ORM\OneToMany(mappedBy: 'adresse', targetEntity: Client::class)]
     private Collection $clients;
 
-    public function __construct()
+
+    
+    public function hydrate (array $vals){
+        foreach ($vals as $cle => $valeur){
+            if (isset ($vals[$cle])){
+                $nomSet = "set" . ucfirst($cle);
+                $this->$nomSet ($valeur);
+            }
+        }
+    }
+
+    public function __construct(array $vals)
     {
+        $this->hydrate($vals);
         $this->clients = new ArrayCollection();
     }
 
