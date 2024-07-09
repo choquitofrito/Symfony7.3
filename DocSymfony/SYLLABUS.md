@@ -5555,9 +5555,10 @@ Il faut rajouter les fonctions dans la config de doctrine
                 DAY: DoctrineExtensions\Query\Mysql\Day
                 MONTH: DoctrineExtensions\Query\Mysql\Month
                 YEAR: DoctrineExtensions\Query\Mysql\Year
-
 ```
-Pour l'utiliser c'est très simple :
+
+
+C'est très simple à utiliser:
 
 ```php
 $em->createQuery("SELECT MONTH(c.dateConcours) AS mois, 

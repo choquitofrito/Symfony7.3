@@ -24,6 +24,11 @@ doctrine:
                 alias: App
         controller_resolver:
             auto_mapping: false
+        dql:
+            string_functions:
+                DAY: DoctrineExtensions\Query\Mysql\Day
+                MONTH: DoctrineExtensions\Query\Mysql\Month
+                YEAR: DoctrineExtensions\Query\Mysql\Year        
 
 when@test:
     doctrine:
