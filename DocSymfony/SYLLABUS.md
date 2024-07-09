@@ -64,10 +64,10 @@
   - [10.3. Création de nos propres services](#103-création-de-nos-propres-services)
     - [Exercices : création de services](#exercices--création-de-services)
   - [10.4. Injecter les services dans le controller](#104-injecter-les-services-dans-le-controller)
-  - [10.5. Injection de paramètres dans le service (I)](#105-injection-de-paramètres-dans-le-service-i)
+  - [10.5. Injection de paramètres dans un service (I)](#105-injection-de-paramètres-dans-un-service-i)
   - [10.6. Utiliser un service dans un autre service](#106-utiliser-un-service-dans-un-autre-service)
   - [10.7. Accéder au modèle dans un Service](#107-accéder-au-modèle-dans-un-service)
-  - [10.8. Injection de paramètres dans le service (II)](#108-injection-de-paramètres-dans-le-service-ii)
+  - [10.8. Injection de paramètres dans un service (II)](#108-injection-de-paramètres-dans-un-service-ii)
   - [10.9. Cas pratique: création d'un service pour uploader des fichiers](#109-cas-pratique-création-dun-service-pour-uploader-des-fichiers)
 - [11. Le Modèle](#11-le-modèle)
   - [11.1. Présentation de Doctrine](#111-présentation-de-doctrine)
@@ -81,7 +81,7 @@
     - [11.6.2. Explication du code généré par l'assistant](#1162-explication-du-code-généré-par-lassistant)
     - [Exercices : création d'entités et de relations](#exercices--création-dentités-et-de-relations)
     - [11.6.3. Relation Many-To-Many](#1163-relation-many-to-many)
-    - [Exercices : création d'une relation de plusieurs à plusieurs](#exercices--création-dune-relation-de-plusieurs-à-plusieurs)
+    - [Exercices : création d'une relation de plusieurs à plusieurs SANS attributs](#exercices--création-dune-relation-de-plusieurs-à-plusieurs-sans-attributs)
     - [11.6.4. Relation One-To-One](#1164-relation-one-to-one)
     - [11.6.5. Relation réflexive (self-association)](#1165-relation-réflexive-self-association)
 - [12. Le modèle : accès à la BD avec Doctrine](#12-le-modèle--accès-à-la-bd-avec-doctrine)
@@ -184,6 +184,32 @@
   - [27.1. Installation et exemple pratique](#271-installation-et-exemple-pratique)
   - [27.2. Filtres et pagination (sans Ajax)](#272-filtres-et-pagination-sans-ajax)
 - [28. JS et CSS avec Webpack encore](#28-js-et-css-avec-webpack-encore)
+  - [28.1. Installation de Webpack Encore et de Node](#281-installation-de-webpack-encore-et-de-node)
+  - [28.2. Configurer Webpack Encore](#282-configurer-webpack-encore)
+  - [28.3. Lancer Webpack](#283-lancer-webpack)
+  - [28.4. Importer les scripts dans les vues](#284-importer-les-scripts-dans-les-vues)
+  - [28.5. Exemple d'utilisation de Webpack avec un fichier pour une vue specifique](#285-exemple-dutilisation-de-webpack-avec-un-fichier-pour-une-vue-specifique)
+  - [28.6. Encore et Bootstrap](#286-encore-et-bootstrap)
+  - [28.7. Gestions des images (en cours)](#287-gestions-des-images-en-cours)
+- [29. Symfony avec Apache. Configuration des Virtual Hosts](#29-symfony-avec-apache-configuration-des-virtual-hosts)
+  - [29.1. Explication de base](#291-explication-de-base)
+  - [29.2. Création d'un serveur virtuel (virtual host) pour un projet en Windows](#292-création-dun-serveur-virtuel-virtual-host-pour-un-projet-en-windows)
+    - [Exercice : création d'un projet contenant l'application skeleton](#exercice--création-dun-projet-contenant-lapplication-skeleton)
+- [30. Intégration de boutons de paiement Paypal](#30-intégration-de-boutons-de-paiement-paypal)
+- [31. Création de commandes de console (en cours)](#31-création-de-commandes-de-console-en-cours)
+- [31. (EN COURS, A NE PAS SUIVRE) Deserialization (transformation de JSON, CSV... en objets)](#31-en-cours-a-ne-pas-suivre-deserialization-transformation-de-json-csv-en-objets)
+- [END](#end)
+  - [jQuery](#jquery)
+- [4. Installation de packages dans un projet Symfony Flex](#4-installation-de-packages-dans-un-projet-symfony-flex)
+- [(En cours, cette doc. appartient à Symfony 4) Traduction des messages de succès/erreur](#en-cours-cette-doc-appartient-à-symfony-4-traduction-des-messages-de-succèserreur)
+  - [Annexe (en cours, brouillon): les pas pour la création d'un projet](#annexe-en-cours-brouillon-les-pas-pour-la-création-dun-projet)
+    - [Analyse](#analyse)
+    - [Implementation](#implementation)
+    - [1. Modèle](#1-modèle)
+    - [2. Controllers et vues](#2-controllers-et-vues)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   - [28.1. Installation de Webpack Encore et de Node](#281-installation-de-webpack-encore-et-de-node)
   - [28.2. Configurer Webpack Encore](#282-configurer-webpack-encore)
   - [28.3. Lancer Webpack](#283-lancer-webpack)
@@ -2633,7 +2659,7 @@ de figure.
 
 <br>
 
-## 10.5. Injection de paramètres dans le service (I)
+## 10.5. Injection de paramètres dans un service (I)
 
 <br>
 
@@ -2824,7 +2850,7 @@ class EnumsJsonService {
 <br>
 
 
-## 10.8. Injection de paramètres dans le service (II)
+## 10.8. Injection de paramètres dans un service (II)
 
 <br>
 
@@ -3313,7 +3339,7 @@ propriétés!
 
 Nous sommes capables maintenant de générer les tableaux qui
 correspondent à nos entités. Cette section est consacrée à
-l'implémentation des relations d'un schéma.
+l'implémentation des relations d'un schéma (héritage, association).
 
 Vous trouverez les exemples décrits ci-dessous dans les projets
 **ProjetModeleSymfony** et **ProjetRelationsSymfony** (regardez le code
@@ -3558,12 +3584,13 @@ Qui équivaut à ce schéma UML (POO) :
 Nous sommes dans une association de plusieurs à plusieurs qui contient des attributs d'association. Symfony a son propre mécanisme pour
 implémenter ces associations (<many-to-many>), toutefois on n'utilisera pas ce mécanisme **parce qu'il ne permet pas d'inclure d'attributs dans l'association !**
 
-Mais la solution est simple : on peut transformer l'association dans
-deux associations du type one-to-many :
+Mais la solution est simple : transformez l'association dans
+deux associations du type one-to-many!
 
-![](/images/many-to-many-transform.png)
+![](./images/many-to-many-transform.png)
 
-### Exercices : création d'une relation de plusieurs à plusieurs
+
+### Exercices : création d'une relation de plusieurs à plusieurs SANS attributs
 
 Implémentez vous-même ce modèle dans **ProjetModeleSymfony** pour avoir la relation entre les Clients et les Exemplaires !
 
@@ -3573,7 +3600,9 @@ Si vous êtes toujours intéressé à implémenter une association de plusieurs 
 
 Voici un exemple :
 
-Considérons qu'on a juste besoin de connaitre qui sont les clients qui ont emprunté un exemplaire et vice-versa (pas de dates d'emprunt ni rien d'autre). Nous avons ce schéma :
+Considérons qu'on a juste besoin de connaitre qui sont les clients qui ont emprunté un exemplaire et vice-versa (pas de dates d'emprunt ni rien d'autre). 
+
+Nous avons ce schéma :
 
 ![](./images/clients-exemplaires.png)
 
@@ -3596,20 +3625,13 @@ DATABASE_URL=mysql://root:@127.0.0.1:3306/relations
 symfony console doctrine:database:create
 ``` 
 
-1)  Créez les entités *Client*,*Exemplaire* et *Livre* **dans ProjetRelationsSymfony** à partir de zéro
+1.  Créez les entités *Client*,*Exemplaire* et *Livre* **dans ProjetRelationsSymfony** à partir de zéro
 
 Note: au lieu de partir de zéro vous auriez pu  aussi copier les entités du dossier Entity de **ProjetModeleSymfony** (Client.php, Exemplaire.php, Livre.php) dans **ProjetRelationsSymfony**. Mais attention : 
 - Il nous manquera les repositories que vous pouvez créer automatiquement avec **symfony console make:entity --regenerate**. 
 - Comme nous allons faire une relation différente entre **Client** et **Exemplaire** (ManyToMany au lieu de OneToMany) nous devons supprimer les annotations concernant cette relation (directement dans le code) 
 - Vous devez effacer les **sets** et **gets** concernés par la rélation - setExemplaires, getExemplaires.
    
-
-
-
-
-
-
-
 
 2.  Créez une propriété du type *relation* et choisissez **Many-to-many**
 
@@ -3803,7 +3825,7 @@ Considérons un magasin qui organise les produits en catégories. Une catégorie
 
 <br>
 
-![](./images/relation-réflexive-one-to-many.png)
+![](./images/relation-reflexive-one-to-many.png)
 <br>
 
 Dans **ProjetRelationsSymfony**:
@@ -3864,7 +3886,7 @@ Créez et lancez la migration, observerz le schéma de la BD:
 
 <br>
 
-![](./images/relation-réflexive-BD.png)
+![](./images/relation-reflexive-BD.png)
 
 Ici, le categorie_parent_id est lié avec l'id de la Categorie 
 
@@ -3879,7 +3901,7 @@ Dans le code PHP (Categorie.php) on obtient deux listes, une pour les sous-caté
 
 Si la relation est de **plusieurs à plusieurs sans attributs** (ex. : un employé qui supervise plusieurs employés, et qui est à son tour supervisé par d'autres employés), on peut utiliser une **relation many-to-many** **si on n'a pas d'attributs dans la relation**.
 
-![](./images/relation-réflexive-many-to-many.PNG)
+![](./images/relation-reflexive-many-to-many.PNG)
 
 Dans **ProjetRelationsSymfony**:
 
@@ -3893,7 +3915,7 @@ Créez et lancez la migration. Observez le résultat dans le code et dans la BD 
 
 <br>
 
-![](./images/relation-réflexive-many-to-many-BD.PNG)
+![](./images/relation-reflexive-many-to-many-BD.PNG)
 
 <br>
 
@@ -3902,7 +3924,7 @@ Créez et lancez la migration. Observez le résultat dans le code et dans la BD 
 
 Voici un exemple (on rajoute le suffixe MMA pour ne pas écraser les autres entités).
 
-![](./images/relation-réflexive-many-to-many-attributes-UML.PNG)
+![](./images/relation-reflexive-many-to-many-attributes-UML.PNG)
 
 
 Dans **ProjetRelationsSymfony**:
@@ -3922,7 +3944,7 @@ La propriété complementaire sera
 
 <br>
 
-![](./images/relation-réflexive-many-to-many-attributes.png)
+![](./images/relation-reflexive-many-to-many-attributes.png)
 
 
 
@@ -4113,7 +4135,10 @@ La serialization est un sujet large. Serialiser consiste **à transformer un obj
 
 **Array d'objets -> Arrays Simples (associatifs) -> Chaîne JSON**
 
-Le prémier pas est la **Normalisation** et le deuxième est **l'encodage JSON**. L'ensemble des deux est la **Serialization**
+La **Sérialisation** comprend deux pas:
+
+Le prémier pas est la **Normalisation** (transformer la structure de données en array)  
+Le deuxième est **l'encodage JSON**
 
 On peut créer nos propres serialisateurs pour encoder-decoder les objets de n'importe quelle manière, **mais ici on se comptente de pouvoir les encoder en JSON, les envoyer à la vue et les traiter en JS**. **C'est carrement sufissant pour la plupart de cas**.
 
@@ -4434,9 +4459,8 @@ public function exempleClear(ManagerRegistry $doctrine)
 
 Quand nous avons des associations entre les entités, nous avons la possibilité d'indiquer à Symfony **de propager l'opération réalisé sur une entité en cascade sur les entités associées**.
 
-**Exemple** : on efface un livre et on provoque l'effacement de tous ses exemplaires en cascade
 
-On travaillera sur un nouveau controller: **ExempleCascadeController**.
+
 
 
 Nous avons plusieurs possibilités :
@@ -4457,9 +4481,19 @@ Si on a enlevé l'entité de l'unité de travail (clear), remove enverra une exc
 **cascade-all** : Implique toutes les opérations précédentes. Peut
 dégrader la performance.
 
+**On doit spécifier le type de cascade dans le fichier de l'entité:**
+
+Ex: dans **Livre.php**:
+
+```php
+#[ORM\OneToMany(mappedBy: 'livre', targetEntity: Exemplaire::class, orphanRemoval: true,  cascade: ['persist', 'remove'])]
+private Collection $exemplaires;
+```
+
 
 <br>
 
+On travaillera sur un nouveau controller: **ExempleCascadeController**.
 **Exemple** : Réalisation d'un **INSERT** des objets d'une relation One-to-Many sans cascade-persist
 
 Observez cet exemple où on crée un Livre et plusieurs Exemplaires, et on stocke le tout dans la BD (créez un nouveau controller *ExemplesCascadeController* et importez les classes Livre et Exemplaires) :
@@ -4667,7 +4701,7 @@ class ClientH extends PersonneH {...}
 **Important:** Effacez les id's dans les classes filles car elles héritent l'id de la classe parent
 
 
-3)  **Rajoutez les annotations** **InheritanceType,DiscriminatorColumn** et **DiscriminatorMap** à la classe **parent**
+3)  **Rajoutez les attributs** **InheritanceType,DiscriminatorColumn** et **DiscriminatorMap** à la classe **parent**
 
 **InheritanceType** indique le type d'héritage. Ici c'est **Single Table**
 **DiscriminatorColumn** indique le nom de la colonne qui contiendra la valeur qui nous indique à quelle classe fille correspond la ligne (ici "auteurH" ou "clientH")

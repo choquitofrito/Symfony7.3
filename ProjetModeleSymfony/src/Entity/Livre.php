@@ -34,7 +34,7 @@ class Livre
     #[ORM\Column(nullable: true)]
     private ?int $nombrePages = null;
 
-    #[ORM\OneToMany(mappedBy: 'livre', targetEntity: Exemplaire::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'livre', targetEntity: Exemplaire::class, orphanRemoval: true,  cascade: ['persist', 'remove'])]
     private Collection $exemplaires;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
@@ -44,15 +44,16 @@ class Livre
     private Collection $auteurs;
 
 
-    public function hydrate (array $vals){
-        foreach ($vals as $cle => $valeur){
-            if (isset ($vals[$cle])){
+    public function hydrate(array $vals)
+    {
+        foreach ($vals as $cle => $valeur) {
+            if (isset($vals[$cle])) {
                 $nomSet = "set" . ucfirst($cle);
-                $this->$nomSet ($valeur);
+                $this->$nomSet($valeur);
             }
         }
     }
-    public function __construct(array $init =[])
+    public function __construct(array $init = [])
     {
         $this->hydrate($init);
         $this->auteurs = new ArrayCollection();
@@ -204,5 +205,13 @@ class Livre
         }
 
         return $this;
+    }
+
+    // encapsulation
+    public function addExemplaireNoClass($etat, $emplacement)
+    {
+        $exemplaire = new \App\Entity\Exemplaire();
+        $exemplaire->setEtat($etat);
+        $this->addExemplaire($exemplaire);
     }
 }
