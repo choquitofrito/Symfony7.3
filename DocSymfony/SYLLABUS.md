@@ -1254,21 +1254,17 @@ Voici le contenu de **base.html.twig**:
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Vive les wads!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
-        {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         {% block stylesheets %}
-            {# {{ encore_entry_link_tags('app') }} #}
         {% endblock %}
 
         {% block javascripts %}
-            {# {{ encore_entry_script_tags('app') }} #}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
     <body>
-        {% block body %}
-        Contenu de base 
-        {% endblock %}
+        {% block body %}{% endblock %}
     </body>
 </html>
 ```
@@ -1394,7 +1390,7 @@ et on accède dans le template twig:
 Si on veut envoyer un array indexé il faudra lui "donner" une clé pour qu'il soit accessible dans le fichier twig. Par exemple :
 
 ```php
-$lesStagiaires = ['Lucie','Salima','Doris'];
+$lesStagiaires = ['Jessica','Emilie','Leslie'];
 ```
 
 Render enverra un array associatif contenant **une clé** dont le contenu est l'array complet :
@@ -1638,7 +1634,7 @@ public function exemple2 (){
 ```
 
 **Note:** Cette solution n'est pas terrible car la transformation en array ne se fera pas proprement dans plein de cas (ex: si on a un objet qui contient d'autres objets, tel que dans le cas de Livre et Exemplaires). 
-En plus on ne peut pas utiliser les objets PHP dans les scripts JS, et si on utilise tout simplement json_encode (pour créer le JSON pour le client) on aura pas mal de problèmes (le plus important est que **json_encode encode uniquement les propriétés publiques des entités**).
+En plus on ne peut pas utiliser les objets PHP dans les scripts JS, et si on utilise tout simplement json_encode (pour créer le JSON pour le client) on aura pas mal de problèmes (le plus important est que **json_encode encodera uniquement les propriétés publiques des entités**).
 
 Voici quelques exemples qui montrent l'encodage et la sérialisation: 
 
@@ -2965,8 +2961,6 @@ Si on voulait **changer l'adresse** on peut toujours créer de méthodes pour ce
 
 
 ## 10.9. Cas pratique: création d'un service pour uploader des fichiers
-
-https://symfony.com/blog/new-in-symfony-6-2-improved-file-validator
 
 Dans cette section on va créer un service capable de réaliser l'upload d'un fichier. 
 
