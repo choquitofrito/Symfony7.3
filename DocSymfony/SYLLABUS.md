@@ -620,7 +620,7 @@ directement au client en utilisant l'objet Response
 
 ### Exercices : création d'actions contenant de paramètres
 
-1.  Créez une nouvelle action afficheTVAC qui reçoit un prix et affiche le prix TVAC 
+1.  Créez une nouvelle action afficheTvac qui reçoit un prix et affiche le prix TVAC 
 
 2.  Créez une autre action qui reçoit trois valeurs et affiche la moyenne 
 
@@ -772,6 +772,8 @@ public function afficheDisponibilite(Request $objRequest)
 
 # 5. Controllers 
 
+Cette section montre comment créer un Controller sans et avec l'assistante de Symfony. Nous avons déjà vu la procedure sans assistante plus haut mais cette section vous servira comme résumé.
+
 ## 5.1. Création d'un controller sans assistant
 
 <br>
@@ -830,7 +832,7 @@ public function afficherTous (){
 **4**.  Rajoutez une route pour chaque action que vous venez de créer 
 
 ```php
-// paramètres PHP8
+// paramètres PHP
 #[Route ("/contacts/afficher/tous")]
 public function afficherTous (){
     $noms = ['Lucy', 'Juan', 'Salima', 'Mar', 'Lupita',
@@ -840,12 +842,6 @@ public function afficherTous (){
 }
 ```
 
-```php
-// annotations
-/**
- * @Route ("/contacts/afficher/tous")
- */
-```
 
 
 **5**.  **Lancez l'action**
@@ -871,8 +867,8 @@ class ContactsController extends AbstractController
     public function afficherTous()
     {
         $noms = [
-            'Lucy', 'Juan', 'Salima', 'Mar', 'Lupita',
-            'Marie'
+            'Marwa', 'Dorothée', 'Anaïs', 'Chariffa', 'Debbie',
+            'Kenza'
         ];
         $strNoms = implode(",", $noms);
         return new Response($strNoms);
