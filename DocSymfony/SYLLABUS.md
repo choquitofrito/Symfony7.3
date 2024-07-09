@@ -2964,7 +2964,7 @@ Si on voulait **changer l'adresse** on peut toujours créer de méthodes pour ce
 
 Dans cette section on va créer un service capable de réaliser l'upload d'un fichier. 
 
-Vous avez besoin de comprendre d'abord le mécanisme d'upload de fichiers. Allez dans la section correspondante du syllabus (voir index)
+**Vous avez besoin de comprendre d'abord le mécanisme d'upload de fichiers (voir index)**
 
 Pourquoi créer un service pour l'upload? Car le code pour faire un upload est long, et on ne veut pas le répéter dans chaque action de l'application qui a besoin de faire upload (ex: les actions de créer un utilisateur et de le mettre à jour son profile ont toutes les deux besoin de cette fonctionnalité)
 
@@ -3137,7 +3137,7 @@ Comme nous l'avons déjà dit, Doctrine fournit les méthodes pour pouvoir **obt
 Nous allons créer un nouveau projet pour apprendre à utiliser Doctrine et les modèles en général:
 
 ``` console
-symfony new --webapp ProjetModelSymfony
+symfony new --webapp ProjetModeleSymfony
 ```
 
 Créez un controller **ExemplesModele** vous-mêmes et une action de bienvenue. 
@@ -3160,7 +3160,7 @@ Documentation de Doctrine liée à Symfony :
 symfony composer req symfony/orm-pack
 symfony composer req symfony/maker-bundle --dev
 ```
-(Le maker bundle sert à générer du code)
+(Le maker bundle sert à générer du code pour les entités)
 
 2.  **Adaptez les paramètres de la BD** dans **le fichier .env** (racine du projet) à votre serveur et nom de base de données
 
@@ -3316,7 +3316,7 @@ correspondent à nos entités. Cette section est consacrée à
 l'implémentation des relations d'un schéma.
 
 Vous trouverez les exemples décrits ci-dessous dans les projets
-**ProjetModelSymfony** et **ProjetRelationsSymfony** (regardez le code
+**ProjetModeleSymfony** et **ProjetRelationsSymfony** (regardez le code
 des entités !)
 
 Documentation:
@@ -3380,7 +3380,7 @@ On crée alors une propriété **exemplaires** et sera une collection qui contie
 <br>
 
 ```console
-C:\xampp\htdocs\Int3-WAD-Symfony6.3\ProjetModelSymfony>symfony console make:entity Exemplaire  
+C:\xampp\htdocs\Int3-WAD-Symfony6.3\ProjetModeleSymfony>symfony console make:entity Exemplaire  
 
  Your entity already exists! So let's add some new fields!
 
@@ -3565,7 +3565,7 @@ deux associations du type one-to-many :
 
 ### Exercices : création d'une relation de plusieurs à plusieurs
 
-Implémentez vous-même ce modèle dans **ProjetModelSymfony** pour avoir la relation entre les Clients et les Exemplaires !
+Implémentez vous-même ce modèle dans **ProjetModeleSymfony** pour avoir la relation entre les Clients et les Exemplaires !
 
 Si vous êtes toujours intéressé à implémenter une association de plusieurs à plusieurs **sans attributs**, suivez les exemples de la documentation de Doctrine :
 
@@ -3598,7 +3598,7 @@ symfony console doctrine:database:create
 
 1)  Créez les entités *Client*,*Exemplaire* et *Livre* **dans ProjetRelationsSymfony** à partir de zéro
 
-Note: au lieu de partir de zéro vous auriez pu  aussi copier les entités du dossier Entity de **ProjetModelSymfony** (Client.php, Exemplaire.php, Livre.php) dans **ProjetRelationsSymfony**. Mais attention : 
+Note: au lieu de partir de zéro vous auriez pu  aussi copier les entités du dossier Entity de **ProjetModeleSymfony** (Client.php, Exemplaire.php, Livre.php) dans **ProjetRelationsSymfony**. Mais attention : 
 - Il nous manquera les repositories que vous pouvez créer automatiquement avec **symfony console make:entity --regenerate**. 
 - Comme nous allons faire une relation différente entre **Client** et **Exemplaire** (ManyToMany au lieu de OneToMany) nous devons supprimer les annotations concernant cette relation (directement dans le code) 
 - Vous devez effacer les **sets** et **gets** concernés par la rélation - setExemplaires, getExemplaires.
@@ -3691,7 +3691,7 @@ de les réaliser la documentation se trouve ici :
 
 Considérez qu'un client peut avoir un avatar (un fichier d'image) et qu'un avatar appartient à un seul client. On ne veut pas stocker les fichiers dans le tableau client, on veut carrément une autre entité.
 
-Dans **ProjetModelSymfony** :
+Dans **ProjetModeleSymfony** :
 
 1.  Créez l'entité *Avatar* (contenant juste une propriété *lien* type string)
 
@@ -4045,7 +4045,7 @@ use Doctrine\Persistence\ManagerRegistry;
 
 Créez à la main ou en code quelques enregistrements dans la base de données (Bibliotheque, table Livres) car nous allons réaliser quelques requêtes de selection. 
 
-(ou importez le fichier *ProjetModelSymfony\src\Entity\sql*)
+(ou importez le fichier *ProjetModeleSymfony\src\Entity\sql*)
 
 Par défaut il existe les méthodes suivantes (héritées) :
 
@@ -4783,7 +4783,7 @@ mais on va développer un exemple simple et associé à une classe d'entité qui
 
 **Exemple** : Création d'une fixture pour stocker de Livres
 
-On va créer et lancer une fixture pour l'entité **Livre** dans le projet **ProjetModelSymfony**. Suivez cette procédure :
+On va créer et lancer une fixture pour l'entité **Livre** dans le projet **ProjetModeleSymfony**. Suivez cette procédure :
 
 1.  Installez le **support** pour les **fixtures**
 
@@ -5154,7 +5154,7 @@ class AuteurLivreFixtures extends Fixture implements DependentFixtureInterface
 Si vous avez un fichier contenant du SQL (ex: pour insérer de données dans une BD), vous pouvez créer une fixture capable de lancer l'ensemble d'instructions SQL d'un fichier :
 
 ```php
-// ProjetModelSymfony\src\DataFixtures\CustomFixtures.php
+// ProjetModeleSymfony\src\DataFixtures\CustomFixtures.php
 <?php
 namespace App\DataFixtures;
 
@@ -6217,7 +6217,7 @@ Chaque champ a **un ensemble de propriétés HTML héritées de ses parents** (e
 
 **Exemple** : rajout des options dans les champs du formulaire 
 
-On va s'entrainer en créant un formulaire plus personnalisé que le précédent, cette fois pour l'entité *Livre*. Rajoutez au **ProjetFormulairesSymfony** toutes les entités de *ProjetModelSymfony*. Dans l'entité Livre, rajoutez **nombrePages**, **langue** et **format** (eBook, papier). 
+On va s'entrainer en créant un formulaire plus personnalisé que le précédent, cette fois pour l'entité *Livre*. Rajoutez au **ProjetFormulairesSymfony** toutes les entités de *ProjetModeleSymfony*. Dans l'entité Livre, rajoutez **nombrePages**, **langue** et **format** (eBook, papier). 
 
     Note : vous pourriez copier juste quelques entités, mais faites attention aux relations avecs le autres entités (si on a une rélation avec une entité qui n'existe pas on aura, bien évidemment, une erreur). 
 
