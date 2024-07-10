@@ -23,4 +23,19 @@
             <a href="{{ path('post_index', {'page': page_actuelle + 1}) }}">Next</a>
         {% endif %}
     </div>
+
+    <script>
+        document.querySelectorAll('.delete-post').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const postId = event.target.getAttribute('data-id');
+                if (confirm('Are you sure you want to delete this post?')) {
+                    axios.post(`/posts/${postId}/delete`)
+                        .then(() => {
+                            event.target.parentElement.remove();
+                        })
+                        .catch(error => console.error(error));
+                }
+            });
+        });
+    </script>
 {% endblock %}

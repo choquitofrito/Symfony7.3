@@ -4,11 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use App\Form\PostType;
+use App\Entity\Commentaire;
+use App\Form\CommentaireType;
 use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\CommentaireRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -17,6 +21,9 @@ class PostController extends AbstractController
     #[Route('/posts', name: 'post_index', methods: ['GET'])]
     public function index(Request $request, PostRepository $postRepository): Response
     {
+
+        // renvoie que les 10 premiers posts
+        // si on change de page, on charge un nouveau lot de 10
         $page = $request->query->getInt('page', 1);
         $limit = 10;
         $posts = $postRepository->findBy([], null, $limit, ($page - 1) * $limit);
@@ -50,11 +57,43 @@ class PostController extends AbstractController
         ]);
     }
 
-    #[Route('/posts/{id}', name: 'post_show')]
-    public function show(Post $post): Response
-    {
+    #[Route('/posts/{id}', name: 'post_show', methods: ['GET', 'POST'])]
+    public function show(
+        Post $post,
+        Request $request,
+        CommentaireRepository $commentaireRepository,
+        EntityManagerInterface $em,
+        SerializerInterface $serializer
+    ): Response {
+        $commentaire = new Commentaire();
+        $commentaireForm = $this->createForm(CommentaireType::class, $commentaire);
+        $commentaireForm->handleRequest($request);
+
+        if ($commentaireForm->isSubmitted() && $commentaireForm->isValid()) {
+            $commentaire->setPost($post);
+            $commentaire->setUser($this->getUser()); // Assurez-vous que l'utilisateur est connecté
+            $commentaire->setDateCreation(new \DateTime());
+            $em->persist($commentaire);
+            $em->flush();
+
+            // dd($request->isXmlHttpRequest());
+            if ($request->isXmlHttpRequest()) {
+                
+                // $jsonContent = $serializer->serialize($commentaire, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['post','user']]);
+
+                $jsonContent = $serializer->serialize($commentaire, 'json', ['groups' => 'commentaire:read']);
+                return new JsonResponse($jsonContent, Response::HTTP_CREATED, [], true);
+            }
+
+            return $this->redirectToRoute('post_show', ['id' => $post->getId()]);
+        }
+
+        $commentaires = $commentaireRepository->findBy(['post' => $post]);
+
         return $this->render('post/show.html.twig', [
             'post' => $post,
+            'commentaires' => $commentaires,
+            'commentaire_form' => $commentaireForm->createView(),
         ]);
     }
 
@@ -81,12 +120,13 @@ class PostController extends AbstractController
     public function delete(Post $post, Request $request, EntityManagerInterface $entityManager): Response
     {
 
-        if ($this->isCsrfTokenValid('delete' . $post->getId(), $request->request->get('_token'))) {
+        // dd($post);
+        // if ($this->isCsrfTokenValid('delete' . $post->getId(), $request->request->get('_token'))) {
             $entityManager->remove($post);
             $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('post_index');
+        // }
+        return new JsonResponse(['message' => 'delete ok']);
+        // return $this->redirectToRoute('post_index');
     }
 
     #[Route('/api/posts', name: 'api_post_index', methods: ['GET'])]

@@ -1,4 +1,5 @@
 {# templates/post/show.html.twig #}
+{# templates/post/show.html.twig #}
 
 {% extends 'base.html.twig' %}
 
@@ -12,19 +13,37 @@
         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
         <button class="btn">Delete</button>
     </form>
-    <h2>Comments</h2>
-    <ul id="comment-list"></ul>
+    <h2>Commentaires</h2>
+    <ul id="commentaire-list">
+        {% for commentaire in commentaires %}
+            <li>{{ commentaire.contenu }} - {{ commentaire.user.email }} at {{ commentaire.dateCreation|date('Y-m-d H:i') }}</li>
+        {% endfor %}
+    </ul>
+    {{ form_start(commentaire_form, {'attr': {'id': 'commentaire-form'}}) }}
+        {{ form_widget(commentaire_form) }}
+        <button type="submit">Add Comment</button>
+    {{ form_end(commentaire_form) }}
     <script>
-        axios.get(`/api/posts/' .{{ post.id }} . '/comments`)
-            .then(response => {
-                const commentaires = response.data;
-                const commenairestList = document.getElementById('comment-list');
-                comments.forEach(commentaire => {
+        document.getElementById('commentaire-form').addEventListener('submit', function(event) {
+            
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+            axios.post(form.action, formData)
+                .then(response => {
+                    const commentaire = response.data;
+                    console.log (commentaire);
+                    const commentaireList = document.getElementById('commentaire-list');
                     const li = document.createElement('li');
-                    li.textContent = commentaire.contenu;
-                    commentairesList.appendChild(li);
-                });
-            })
-            .catch(error => console.error(error));
+                    li.textContent = `${commentaire.contenu} - ${commentaire.user.email} at ${new Date(commentaire.dateCreation).toLocaleString()}`;
+                    commentaireList.appendChild(li);
+                    form.reset();
+                })
+                .catch(error => console.error(error));
+        });
     </script>
 {% endblock %}

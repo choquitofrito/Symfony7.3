@@ -17,9 +17,9 @@ class CommentaireType extends AbstractType
     {
         $builder
             ->add('contenu', TextareaType::class)
-            ->add('dateCreation', null, [
-                'widget' => 'single_text',
-            ])
+            // ->add('dateCreation', null, [
+            //     'widget' => 'single_text',
+            // ])
             // ->add('post', EntityType::class, [
             //     'class' => Post::class,
             //     'choice_label' => 'id',
