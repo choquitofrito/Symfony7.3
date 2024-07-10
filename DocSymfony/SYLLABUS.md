@@ -166,6 +166,7 @@
   - [22.1. Renvoi JSON d'un array d'objets depuis le controller](#221-renvoi-json-dun-array-dobjets-depuis-le-controller)
   - [22.2. Renvoi JSON d'un array d'objets obtenu avec DQL](#222-renvoi-json-dun-array-dobjets-obtenu-avec-dql)
 - [23. Mail](#23-mail)
+- [NEW MailDumper (UPDATE!)](#new-maildumper-update)
 - [24. Authentification : inscription et login/password](#24-authentification--inscription-et-loginpassword)
   - [2.4.1. Configuration de la sécurité et création d'un formulaire de login](#241-configuration-de-la-sécurité-et-création-dun-formulaire-de-login)
   - [24.2. Création d'un formulaire d'inscription](#242-création-dun-formulaire-dinscription)
@@ -177,9 +178,6 @@
     - [26.2.1. Dans security.yaml](#2621-dans-securityyaml)
     - [26.2.2. Dans le controller](#2622-dans-le-controller)
     - [26.2.3. Restriction d'accès dans la vue](#2623-restriction-daccès-dans-la-vue)
-  - [26.3. Gestion de l'erreur "Access Denied" (exception) en utilisant une classe propre](#263-gestion-de-lerreur-access-denied-exception-en-utilisant-une-classe-propre)
-  - [26.4. Fenêtre modale pour le login avec AJAX (assurez-vous de bien gérer AJAX avant)](#264-fenêtre-modale-pour-le-login-avec-ajax-assurez-vous-de-bien-gérer-ajax-avant)
-    - [Adaptation à Ajax et fenêtre modale](#adaptation-à-ajax-et-fenêtre-modale)
 - [27. Pagination (sans AJAX)](#27-pagination-sans-ajax)
   - [27.1. Installation et exemple pratique](#271-installation-et-exemple-pratique)
   - [27.2. Filtres et pagination (sans Ajax)](#272-filtres-et-pagination-sans-ajax)
@@ -8878,10 +8876,7 @@ La séquence peut être résumée en :
 
 # 23. Mail
 
-#!!!!!!!!!!!!!! NEW MailDumper
-
-Mailer test: https://symfony.com/blog/new-in-symfony-6-2-better-debugging-commands
-
+# NEW MailDumper (UPDATE!)
 
 Pour configurer l'envoi de mail, regardez cette doc:
 
@@ -8989,20 +8984,11 @@ On va réaliser une configuration de base de la sécurité pour pouvoir créer u
 
 2.  **Créer** **une** **entité** **User** (assistant)
 
-3.  **Créer** (assistant)
+3.  Configurer la BD dans **.env**, créer le **schéma** de la BD, créer et lancer une **migration**
 
-    -   Un **controller** pour le **login** et **le logout**
+4.  **Encoder des utilisateurs et de passwords dans la BD** (optionnel fixtures)
 
-    -   Un **template pour afficher le formulaire** de login
-
-    -   Un **Guard Authenticator**, **classe** qui **traite les
-        informations** du formulaire de login
-
-4.  Configurer la BD dans **.env**, créer le **schéma** de la BD, créer et lancer une **migration**
-
-5.  **Encoder des utilisateurs et de passwords dans la BD** (optionnel fixtures)
-
-6.  **Vérifier** le bon fonctionnement en tapant un couple login/pass valable
+5.  **Vérifier** le bon fonctionnement en tapant un couple login/pass valable
 --
 <br>
 
@@ -9013,6 +8999,7 @@ On va réaliser une configuration de base de la sécurité pour pouvoir créer u
 ```php
 symfony composer req symfony/security-bundle
 ```
+
 
 **2**.  **Créer** **une** **entité** **User** avec l'assistant avec **make:user** (pas make:entity!)
 
@@ -9041,7 +9028,6 @@ Ouvrez **src/Entity/User.php**:
 ```php
 <?php
 
-<?php
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -9051,6 +9037,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -9058,9 +9045,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column(length: 180)]
     private ?string $email = null;
 
+    /**
+     * @var list<string> The user roles
+     */
     #[ORM\Column]
     private array $roles = [];
 
@@ -9099,6 +9089,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @see UserInterface
+     *
+     * @return list<string>
      */
     public function getRoles(): array
     {
@@ -9109,6 +9101,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
+    /**
+     * @param list<string> $roles
+     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -9140,7 +9135,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 }
-
 ```
 
 Vous pouvez par après rajouter d'autres propriétés ou méthodes si vous le souhaitez.
@@ -9154,7 +9148,7 @@ L'assistant aura modifié aussi le fichier **security.yaml** (dans
 ```yaml
 .
 .
-providers:
+    providers:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
             entity:
@@ -9172,66 +9166,7 @@ providers:
 ```
 
 
-**Note** : c'est très important de respecter l'indentation dans les
-fichiers .yaml 
-
-**3**.  **Créer le controller, le template et un Guard Authenticator (avec l'assistant)** :
-
--   Un **controller** pour le **login** et **une route**
-
--   Un **template pour afficher le formulaire** de login
-
--   Un **Guard Authenticator**, **classe** qui **traite les informations** du formulaire de login
-
-Ces trois pas se font **avec une seule commande de l'assistant** :
-```console
-symfony console make:auth
-```
-Pour les questions posées par l'assistant on choisira :
-
--   **L'option** **1** pour que Symfony crée un formulaire de login de base et pas seulement le système d'authentification vide
-
--   **LoginAuthenticator** comme nomme de la classe GuardAuthenticator qui prendra en charge la requête à la BD pour réaliser **l'authentification** (crée dans le dossier **src/Security**)
-
--   **SecurityController** comme nom du controller (actions login et
-    logout)
-
--   **Oui**, car on veut que Symfony crée aussi l'URL de logout (avec l'action qui deloggera l'user, c.à.d. l'effacer de la session)
-
--   **Oui** si on veut que la caracteristique **Remember me** soit implementée
-
-Si vous vous trompez dans les options, effacez LoginAuthenticator et le controller SecurityController (avec ses templates) 
-
-Cette action met aussi à jour le fichier de configuration **config/packages/security.yaml**.
-
-```yaml
-.
-.
-main:
-    lazy: true
-    provider: app_user_provider
-    custom_authenticator: App\Security\LoginAuthenticator
-    logout:
-        path: app_logout
-        # where to redirect after logout
-        # target: app_any_route
-
-    # Si on a activé "Remember me"
-    remember_me:
-        secret: '%kernel.secret%'
-        lifetime: 604800
-        path: /
-        always_remember_me: true
-
-.
-.
-```
-
-Observez que le controller et le template ont été créés. Vous pouvez
-accéder à la vue contenant le formulaire de login en tapant la route
-de l'action **login** du controller.
-
-**4**. Configurer la BD dans **.env** (**projetloginpass**), créer le
+**3**. Configurer la BD dans **.env** (**projetloginpass**), créer le
     **schéma** de la BD, créer et lancer une **migration**
 
 ```console
@@ -9240,7 +9175,104 @@ symfony console make:migration
 symfony console doctrine:migrations:migrate
 ```
 
-**5**.  **Encoder des utilisateurs et de passwords dans la BD**
+
+**4**. **Générer le système d'authentification** 
+
+
+```console
+make:security:form-login
+```
+- Nom pour le controller (SecurityController)
+- Générer la route pour le logout
+- Pas générer les unit tests
+  
+
+**5.** **Genérer un controller pour le Login**. Ce controller est censé uniquement d'afficher le formulaire de login, pas de le traiter.
+
+```console
+php bin/console make:controller Login
+```
+
+Éditez le controller:
+
+```php
+
+// ...
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+
+  class LoginController extends AbstractController
+  {
+      #[Route('/login', name: 'app_login')]
+   public function index(AuthenticationUtils $authenticationUtils): Response
+      {
+        // obtenir l'erreur qui peut se produire pendant le login 
+        // (ex: invalid credentials)
+        $error = $authenticationUtils->getLastAuthenticationError();
+        // obtenir le nom du dernier user qui s'est connecté
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+          return $this->render('login/index.html.twig', [
+            'last_username' => $lastUsername,
+            'error'         => $error,
+          ]);
+      }
+  }
+```
+
+Observez le template crée dans le dossier /templates/security/index.html.twig:
+
+
+```twig
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block body %}
+    <form method="post">
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        {% if app.user %}
+            <div class="mb-3">
+                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+            </div>
+        {% endif %}
+
+        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+        <label for="username">Tapez votre Email</label>
+        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
+        <label for="password">Password</label>
+        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+
+        <input type="hidden" name="_csrf_token"
+               value="{{ csrf_token('authenticate') }}"
+        >
+
+        {#
+            Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+            See https://symfony.com/doc/current/security/remember_me.html
+
+            <div class="checkbox mb-3">
+                <input type="checkbox" name="_remember_me" id="_remember_me">
+                <label for="_remember_me">Remember me</label>
+            </div>
+        #}
+
+        <button class="btn btn-lg btn-primary" type="submit">
+            Sign in
+        </button>
+    </form>
+{% endblock %}
+```
+
+Le controller et le template ont été créés. Vous pouvez
+accéder à la vue contenant le formulaire de login en tapant la route
+de l'action **login** du controller.
+
+
+
+**6**. **Encoder des utilisateurs et de passwords dans la BD**
 
 Créez une fixture pour la classe User (voir chapitre précédant sur le
 Doctrine Fixtures).
@@ -9306,7 +9338,7 @@ injection par le constructeur !!).
 **Important :** si votre entité a d'autres attributs (nom, adresse,
 etc...) il faudra rajouter les sets qui correspondent
 
-N'oubliez pas de lancer la fixture avec :
+N'oubliez pas de lancer la fixture avec un fichier .bat ou avec
 
 ```console
 symfony console doctrine:fixtures:load
@@ -9331,43 +9363,49 @@ Dans **phpmyadmin** votre tableau **User** ressemblera à :
 
 ![](./images/usertable.png)
 
-**6**.  **Vérifier** le bon fonctionnement en tapant un couple login/pass
-    valable
 
-Allez sur la page de login (par défaut l'action **login** dans **SecurityController**) et tapez un couple *login/pass* valable (ex: user "user1@lala.com" et password "lePassword"). 
-
-**Si tout va bien vous allez obtenir... une Exception**! car **dans votre controller Authenticator** (**LoginAuthenticator** dans le dossier **src/Security**) vous n'avez pas spécifié une **Response** pour le serveur quand le login est correct.
-Ceci arrive car Symfony lance la méthode **onAuthenticationSuccess** du controller **LoginAuthenticator** si le login est correct.
-
-![](./images/loginredirect.png)
-
-
-Vous avez juste à implémenter cette action pour indiquer quoi faire
-dans le cas de succès (modifiez le fichier **src/Security/LoginAuthenticator.php**). 
-
-Voici un exemple :
+**9**. Décider l'action à realiser si le login est correct dans **/config/packages/security.yaml**
 
 ```php
-public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-{
-    if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-        return new RedirectResponse($targetPath);
-    }
 
-    // throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
+.
+.
+.
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                
+                default_target_path: accueil # name de la route à charger
+                
+                enable_csrf: true
+            logout:
+                path: app_logout
+                # route à lancer après le logout
+                target: app_login
 
-    // nous devons charger une vue ou faire quoi qui ce soit
-    // ex:
-    // on peut penser à  : return $this->redirectToRoute ('accueil')
-    // mais cette classe n'a pas la méthode RedirectToRoute car 
-    // elle n'est pas un controller! On utilisera alors :
-    return new RedirectResponse($this->urlGenerator->generate('accueil'));
-    // on commente/efface la ligne que lance l'exception.
-    // throw new Exception('TODO: provide a valid redirect inside '.__FILE__);
-}
+            # access_control:
+            #     - { path: ^/login, roles: PUBLIC_ACCESS }
+            #     - { path: ^/register, roles: PUBLIC_ACCESS }
+            #     - { path: ^/, roles: ROLE_USER } 
+
+.
+.
+.
 ```
 
-Dans le cas de succès, **le code qui reste** de l'action **login** ne sera pas lancée car on fera un redirect. Ici vers une action de votre choix (ici *accueil*). Pour cet exemple, créez le controller **AccueilController** avec l'assistant, l'action *accueil* et une vue contenant un message de bienvenue.
+
+
+**8**.  **Vérifier** le bon fonctionnement en tapant un couple login/pass
+    valable
+
+Allez sur la page de login (par défaut l'action **login** dans **SecurityController**) et tapez un couple *login/pass* valable (ex: user "user1@lala.com" et password "lePassword1"). 
 
 
 **Controller** (src/Controller/AccueilController):
@@ -9402,35 +9440,6 @@ class AccueilController extends AbstractController
 {% endblock %}
 ```
 
-Si une erreur de login s'est produite, **nous avons deux possibilités** pour le **traiter** :
-
-<br>
-
-**a) Utiliser le template login crée par Symfony et l'adapter à nos besoins (par défaut)**
-
-Dans cet exemple, si le couple login/pass n'est pas correct l'action **onAuthenticationSuccess** ne sera pas lancéé. Symfony **cherchera l'action onAuthenticationFailure** mais elle n'existe pas. **Le code de l'action login continuera** et la variable **error** contiendra l'info de l'erreur de login. La vue du login sera rechargée et affichera (voir **if** dans le code) un div contenant le message de l'erreur qui s'est produite (ex: mail inexistant, invalid credentials si le password n'est pas correcte...).
-
-Dans la vue on peut choisir par nous-mêmes quoi faire s'il y a une erreur, il suffit de vérifier la valeur de cette variable et agir conséquemment (afficher un message d'erreur, rediriger vers un autre site etc...). On peut aussi juste établir une traduction pour les messages d'erreur de base de Symfony, car par défaut ils seront en anglais!
-
-À chaque essai de login c'est conseillé de lancer l'action **logout** pour effacer le contenu de la session. On parlera du logout plus bas.
-
-<br>
-
-**b)**  Rajouter une action **onAuthenticationFailure** dans **LoginAuthenticator.php** 
-
-L'action **onAuthenticationFailure** sera lancée quand il à chaque erreur de login, de la même manière que **onAuthenticationSuccess** est lancée dans le cas de succès. Elle est commentée dans le code, effacez les commentaires pour que Symfony la trouve. Le comportement expliqué dans **a)** sera logiquement annulé car le code de la vue ne sera plus lancé.
-
-
-```php
-// méthode faite par nous-mêmes. Enlevez les commentaires pour voir l'effet. Importez AuthenticationException
-public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
-{
-    // la méthode est doit renvoyer une réponse. 
-    // à nouse de rediriger, lancer une exception ou autre...
-    return new Response ("Erreur dans le login");
-}
-```
-
 <br>
 
 ## 24.2. Création d'un formulaire d'inscription
@@ -9458,7 +9467,7 @@ Suivez les instructions de l'assistant. Choisissez si :
 
 - Vous voulez qu'on ne puisse pas avoir de doublons dans les Users (yes) 
 - Vous voulez envoyer un lien d'authentification pour l'inscription par mail. Si oui, Symfony vous demandera de taper l'adresse mail et il faudra configurer le protocol de mail. **Tapez 'no'** car on veut simplifier cet exemple
-- Vous voulez que les utilisateurs soient connectés directement après l'inscription (comme dans la plupart de sites)
+- Vous voulez que les utilisateurs soient connectés directement après l'inscription (comme dans la plupart de sites). Répondez "yes"
 
 L'assistant créera :
 
@@ -9494,7 +9503,7 @@ Il y a deux parties à configurer:
 
 **path**: Le **name** de l'action logout créé par Symfony dans le controller de securité (**SecurityController**)
 
-**target** : La **route** (pas le name!) de l'action qui sera lancée par Symfony **après** l'action de logout (qui est vide la plupart de fois)
+**target** : Le **name** de l'action qui sera lancée par Symfony **après** l'action de logout 
 
 "Faire le logout" est, en gros, effacer l'objet User de la session. Symfony s'en chargera de le faire sans votre intervention
 
@@ -9509,37 +9518,15 @@ Il y a deux parties à configurer:
             provider: app_user_provider
             custom_authenticator: App\Security\LoginAuthenticator
             logout:
-                path: logout
-                target: /apres/logout 
+                path: app_logout
+                # route à lancer après le logout
+                target: app_login
             
 
 ```
-On peut choisir le **path** selon nos besoins.
 
 **Important** : Respectez l'indentation dans les fichiers .yaml. Elle est faite avec des espaces et pas de tabulations!
 
-On doit avoir une action à lancer **après** le logout.
-
-1. Laissez vide l'action de logout (elle ne sera jamais lancée) et créez l'action à lancer après d'avoir fini le traitement du logout (effacer user, session etc...)
-
-**ProjetLoginPass** contient cette fonctionnalité. L'action cible se
-trouve dans **SecurityController**.
-
-```php
-    #[Route(path: '/logout', name: 'app_logout')]
-    public function logout(): void
-    {
-        // throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
-    }
-
-    #[Route("/apres/logout")]
-    public function apresLogout()
-    {
-        // on peut faire ce qu'on veut ici, en général ré-diriger vers une autre route. 
-        // return $this->redirectToRoute('ma_route');
-        return $this->redirectToRoute('app_login');
-    }
-```
 
 <br>
 
@@ -9605,9 +9592,21 @@ symfony console make:entity User
 ```php
 .
 .
+class RegistrationFormType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         $builder
             ->add('email')
-            ->add('nom', TextType::class)
+            ->add('nom')
+            ->add('agreeTerms', CheckboxType::class, [
+                'mapped' => false,
+                'constraints' => [
+                    new IsTrue([
+                        'message' => 'You should agree to our terms.',
+                    ]),
+                ],
+            ])
             ->add('plainPassword', PasswordType::class, [
                 // instead of being set onto the object directly,
                 // this is read and encoded in the controller
@@ -9625,7 +9624,10 @@ symfony console make:entity User
                     ]),
                 ],
             ])
+            
         ;
+    }
+
 .
 .
 ```
@@ -9872,316 +9874,6 @@ La vie est belle
 ```
 
 
-## 26.3. Gestion de l'erreur "Access Denied" (exception) en utilisant une classe propre
-
-Pour **personnaliser l'action à réaliser** en cas **d'erreur d'accès par rôle** vous devez utiliser une classe propre.
-
-1.  **Créer une classe** (ici c'est **Security/GestionnaireErreurAcces.php**) **contenant une action où on fixera l'action à réaliser**. Voici un exemple où, **dans le cas d'une erreur d'accès**, on redirige vers login (notez que la redirection se fait de manière différente quand on se trouve à l'extérieur du controller)
-
-Il y a deux cas de figure pour une erreur d'accès:
-
-a) Si l'utilisateur n'est pas authentifié (ou authentifié de manière anonyme), un point d'entrée d'authentification est utilisé pour générer une réponse (généralement une redirection vers la page de connexion ou une réponse 401 non autorisée)
-
-b) Si l'utilisateur est authentifié, mais ne dispose pas des autorisations requises, une réponse 403 Forbidden est générée.
-
-Ici on va traiter le deuxième cas de figure :
-
-```php
-<?php 
-// src/Security/GestionnaireErreurAcces.php
-namespace App\Security;
-
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Http\Authorization\AccessDeniedHandlerInterface;
-
-class GestionnaireErreurAcces implements AccessDeniedHandlerInterface
-{
-
-
-    private $router;
-
-    public function __construct (UrlGeneratorInterface $router){
-        $this->router = $router;
-
-    }
-
-    public function handle(Request $request, AccessDeniedException $accessDeniedException) :?Response
-    {
-        // choisissez la route vers laquelle y aller. Ici on a choisi app_login
-        return new RedirectResponse ($this->router->generate ("app_login")); 
-    }
-}
-```
-
-Pour que ce gestionnaire soit lancé, vous devez créer la clé **access_denied_handler** dans **security.yaml** qui pointe vers la classe qu'on vient de créer (indentation !!!)
-
-```yaml
-            logout:
-                path: logout
-                target: /apres/logout 
-                # where to redirect after logout
-                # target: app_any_route
-            access_denied_handler: App\Security\GestionnaireErreurAcces
-
-```
-Si vous avez gardé le template de login original, modifiez le lien pour le logout (app_logout devient **logout** ou un autre nom choisit par vous dans la section de logout déjà expliquée):
-
-```twig
-You are logged in as {{ app.user.username }}, <a href="{{ path('logout') }}">Logout</a>
-
-```
-<br>
-
-## 26.4. Fenêtre modale pour le login avec AJAX (assurez-vous de bien gérer AJAX avant)
-
-
-Cette section explique plus en profondeur le comportement du système de login/pass qu'on peut créer automatiquement avec **make:auth**, ainsi que les bases pour modifier ce système en utilisant une **fenêtre modale et Ajax**.
-
-On part du principe que vous avez déjà créé votre entité user et le système de login avec make:auth (voir les sections précédentes).
-
-L'action login créé par Symfony rend toujours la vue qui affiche le login ($this->render).
-
-Avec la configuration par défaut de Symfony, cette action sera lancée dans deux cas de figure :
-
-- **GET** : **quand on tape /login dans l'URL** du navigateur ou, normalement, quand on génère la route **avec un href**
-
-- **POST** : quand on fait **submit** dans un formulaire dont l'action pointe vers la route de cette action.
-
-Dans le code généré par Symfony pour le form de login **il n'y a pas d'attribut "action".** Ça implique que quand on clique sur le bouton de submit on chargera à nouveau la même route (dans ce cas ça sera */login*). Plusieurs actions de la classe de notre Authenticator seront lancées **avant de lancer le code de cette action.**
-
-**En résumé** :
-
-1.  si on tape /login dans **l'URL**, l'action fait un rendu de la vue login.html.twig. La vue envoie deux paramètres au controller : le dernier utilisateur connecté avec succès et un message correspondant à l'erreur qui s'est produite dans le dernier essai de connexion
-
-2.  si on fait **submit** et le **login est ok** on charge
-    **onAuthenticationSuccess** et **puis le code de l'action login**,
-    **sauf** si à l'intérieur de la méthode onAuthenticatioSuccess on
-    redirige vers une autre action.
-
-**Note**: sachez que cette action sera aussi appelée si on crée un form d'enregistrement et on choisit d'être connecté automatiquement après l'enregistrement
-
-3.  si on fait **submit** et le **login n'est pas ok** on charge
-    **onAuthenticationFailure**. Si cette action n'existe pas on charge
-    directement le code de l'action login, qui charge à son tour la vue
-    login. Pareil que dans onAuthenticationSuccess on peut rediriger,
-    lancer une exception ou quoi que ce soit. La différence est que
-    cette action est optionnelle, mais onAuthenticationSuccess est
-    obligatoire.
-
-Comme nous l'avons déjà dit, dans le code généré par défaut par Symfony
-l'action login envoie toujours deux valeurs à la vue :
-
-1. **lastUsername** : contient le nom du dernier utilisateur qui s'est
-connecté correctement
-
-2. **error** : objet qui contient des infos sur l'erreur qui s'est
-produit (email inexistant, crédentielles invalides...)
-
-Ces infos sont utilisées dans le template par défaut, **mais bien évidemment vous pouvez les utiliser comment vous voulez** en changeant le template!
-
-
-
-### Adaptation à Ajax et fenêtre modale
-
-Dans plein de cas on va vouloir utiliser une fenêtre modale pour le login (ou même pour d'autres actions). Considérons un cas générique :
-
-1)  On est sur un site contenant une **nav** qui contient un lien *login/inscription* à l'intérieur. On clique et une fenêtre modale apparait. Cette fenêtre est juste un div caché qui se trouve quelque part dans la page (header.html.twig, par exemple). 
-C'est ici où on inclura notre template de login login.html.twig, mais adapté au contexte et contenant AJAX.
-
-1)  Quand on remplit le login on aura deux cas de figure possibles
-
-    **a**.  **Login ok** : on ferme le div et on est dans l'accueil (ou index). On modifie quoi que ce soit dans la page avec AJAX pour montrer à l'utilisateur qu'il s'est connecté correctement (ex: icône dans la nav). On peut aussi rediriger, mais on va devoir le faire avec JS (explication plus tard)
-
-    **b**.  **Login pas ok** : on affiche un message d'erreur dans un div qui était vide et qui se trouve dans le code du div de login (la "fenêtre modale")
-
-Pour ce faire on a besoin d'AJAX. Pour nous faciliter la tâche on utilisera Axios. 
-
-
-**Voici la procédure pour la création de la fenêtre modale si vous voulez l'utiliser dans un projet**. Sachant que la procédure dépend fortement du template à utiliser, on montre une procédure générique.
-
-
-1. Inclure la vue **login.html.twig** créé par Symfony là où se trouve le code de la fenêtre modale. Remplacez le code original de la fenêtre modale (ex: un div quelque par  dans le template). Utilisez include (twig) dans ce div pour inclure *login.html.twig*. 
-On peut adapter le code selon nos besoins. 
-
-```twig
-.
-.
-.
-<div id="modal_window_div_container">
-<!-- ancien code de la fenêtre modale, maintenant en commentaires  
-<form>
-    <div class="form-group">
-    .
-    .
-    </div>
-</form> 
--->
-{# nouveau code: notre template de login #}
-{% include "security/login.html.twig" %}
-</div>
-.
-.
-.
-```
-
-
-
-2. Dans le template **login.html.twig** du login, **créer des id**: un pour le **bouton** et un autre pour le **Form** car on va utiliser Ajax et on doit rajouter un événement et créer un objet FormData.
-
-```twig
-<form id="formLogin">   <!-- pas d'action ni de méthode, on utilise Axios -->
-.
-.
-    <button class="btn btn-lg btn-primary" type="submit" id="btnLogin">
-```
-
-
-3. Toujours dans le même template, rajoutez aussi un **div** pour afficher les **messages d'erreur**
-
-```twig
-<!-- pour afficher l'erreur -->
-<div id="divMessageErreur">
-<!-- vide par défaut -->
-</div>
-```
-<br>
-
-4. Toujours dans le même template, **importer axios et faire un appel ajax** à l'action login **en lui envoyant le form**. La route est **(app_login)**. Ce n'est pas notre cas, mais si vous utilisez un fichier externe .js au lieu d'incruster le js dans le twig, utilisez les **datasets** pour stocker la route dans un des objets du DOM ou utilisez **FOSJsRoutingBundle**.
-
-On peut créer un block **customjs** qui sera present seulement dans, par exemple, la master page (base.html.twig, header.html.twig... ça dépend du template). 
-
-Ce bloc peut se trouver éventuellement à l'intérieur d'un bloc **content** ou autre. 
-
-Vous devez choisir quoi faire selon ce qu'on reçoit du controller.
-Ici on affiche un message d'erreur ou on redirige (ici on peut!) vers l'accueil.
-
-Voici **login.html.twig** adapté, qui **se trouvera inclut quelque part dans le site** dans le div d'une fenêtre modale:
-
-```twig
-<!-- contenu à incruster dans le div container  -->
-
-<form id="formLogin">    
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="" name="email" id="inputEmail" class="form-control" required
-        autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" required>
-
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-    <button class="btn btn-lg btn-primary" type="submit" id="btnLogin">
-        Sign in
-    </button>
-</form>
-
-<!-- pour afficher l'erreur -->
-<div id="divMessageErreur">
-<!-- vide par défaut -->
-</div>
-
-{% block customjs %}
-<!-- ce bloc est imbriqué dans le bloc qui a l'include -->
-<!-- pas besoin de parent car ce code est inclut dans le base.html.twig avec include  -->
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script>
-    document.getElementById("btnLogin").addEventListener("click", function (event) {
-        event.preventDefault();
-        axios({
-            url: '{{ path ("app_login") }}',
-            method: 'POST',
-            headers: { 'Content-Type': 'multipart/form-data' },
-            data: new FormData(document.getElementById("formLogin"))
-        })
-        .then(function (response) {
-                // response.data est un objet qui correspond à l'array associatif envoyé dans le controller
-                // JsonResponse a transformé l'array en JSON. Axios transforme le JSON en objet JS
-                
-                // si erreur
-                if (response.data.error != undefined) {
-                    divMessageErreur.innerHTML = response.data.error;
-                }
-                // si pas d'erreur
-                else {
-                    console.log ('connexion ok login');
-                    window.location.href = "{{ path ('accueil') }}";
-                }
-                
-        })
-        .catch(function (error) {
-                console.log(error);
-        });
-    });    
-</script>
-{% endblock %}
-```
-
-
-5. **Adapter l'action de login** (SecurityController dans le projet).
-
-Cette action, dans notre cas, n'est jamais appelée dans l'URL.
-
-Si une erreur s'est produite, on envoie le lastUserName et l'erreur pour que la vue le traite en JS. S'il n'y a pas d'erreur, on envoie uniquement le lastUserName. Notez qu'on **ne peut pas rediriger vers une autre action ici car on doit renvoyer une response JSON!! (on a appelé avec Axios) .** Si on essaie une redirection, le rendu de la vue correspondante se trouvera dans la reponse du serveur mais elle ne sera pas chargée dans le navigateur.
-
-
-```php
-#[Route("/login/modal", name="app_login")]
-public function login(AuthenticationUtils $authenticationUtils, Request $req): Response
-{
-    // get the login error if there is one
-    $error = $authenticationUtils->getLastAuthenticationError();
-    // last username entered by the user
-    $lastUsername = $authenticationUtils->getLastUsername();
-    $response = new JsonResponse(['lastUsername' => $lastUsername]); // cas de base : pas d'erreur 
-    // si erreur, on envoie le message. Il faut choisir le message qu'on affiche selon l'erreur
-
-    // ou tout simplement afficher login/pass incorrecte
-    if (!is_null($error)) {
-        $response = new JsonResponse([
-            'error' => 'Utilisateur ou mot de passe incorrectes', //$error->getMessage(), // autrement on envoie tout un objet!
-            'lastUsername' => $lastUsername
-        ]);
-    }
-    return $response; // on renvoie la reponse dans tous les cas. Elle sera traitée en JS
-}
-```
-
-6.  Dans le Authenticator (LoginAuthenticator), modifiez l'action **onAuthenticationSuccess** pour qu'elle redirige vers l'accueil. Dans le template de l'accueil vous pouvez incruster les données de l'utilisateur là où vous voulez.
-
-```php
-public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
-
-{
-
-    // if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
-    //     return new RedirectResponse($targetPath);
-    // }
-    // redirigez vers login: là on fera reponse JSON qui nous convient.
-    // Contrairement à certaines docs, on ne peut pas renvoyer null ni éliminer la méthode
-
-    return new RedirectResponse($this->urlGenerator->generate('accueil'));
-
-    // For example : return new RedirectResponse($this->urlGenerator->generate('some_route'));
-
-    // throw new Exception('TODO: provide a valid redirect inside '.__FILE__);
-}
-```
-
-7. Changer la nav ou le template de base pour afficher l'utilisateur qui vient de se connecter
-
-    Ex. de base dans **header.html.twig** :
-
-```twig
-{% if app.user.username is defined %}
-logged: {{ app.user.username }} 
-{% endif %} 
-```
-
-<br>
 
 
 # 27. Pagination (sans AJAX)
