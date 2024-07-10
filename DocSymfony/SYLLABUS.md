@@ -181,13 +181,12 @@
 - [27. Pagination (sans AJAX)](#27-pagination-sans-ajax)
   - [27.1. Installation et exemple pratique](#271-installation-et-exemple-pratique)
   - [27.2. Filtres et pagination (sans Ajax)](#272-filtres-et-pagination-sans-ajax)
-- [28. JS et CSS avec Webpack encore](#28-js-et-css-avec-webpack-encore)
-  - [28.1. Installation de Webpack Encore et de Node](#281-installation-de-webpack-encore-et-de-node)
-  - [28.2. Configurer Webpack Encore](#282-configurer-webpack-encore)
-  - [28.3. Lancer Webpack](#283-lancer-webpack)
-  - [28.4. Importer les scripts dans les vues](#284-importer-les-scripts-dans-les-vues)
-  - [28.5. Exemple d'utilisation de Webpack avec un fichier pour une vue specifique](#285-exemple-dutilisation-de-webpack-avec-un-fichier-pour-une-vue-specifique)
-  - [28.6. Encore et Bootstrap](#286-encore-et-bootstrap)
+- [28. AssetMapper](#28-assetmapper)
+  - [Le fichier importmap.php](#le-fichier-importmapphp)
+  - [Importation directe de librairies: bootstrap, jQuery, fontawesome, axios, ...](#importation-directe-de-librairies-bootstrap-jquery-fontawesome-axios-)
+  - [Images](#images)
+  - [Production](#production)
+  - [Exemple d'utilisation d'AssetMapper avec un fichier pour une vue specifique](#exemple-dutilisation-dassetmapper-avec-un-fichier-pour-une-vue-specifique)
   - [28.7. Gestions des images (en cours)](#287-gestions-des-images-en-cours)
 - [29. Symfony avec Apache. Configuration des Virtual Hosts](#29-symfony-avec-apache-configuration-des-virtual-hosts)
   - [29.1. Explication de base](#291-explication-de-base)
@@ -10024,336 +10023,314 @@ On a choisi, par défaut, d'envoyer déjà un ensemble de résultats à la vue (
 <br>
 
 
-# 28. JS et CSS avec Webpack encore
+# 28. AssetMapper
 
-Si vous voulez utiliser du JS et CSS vous pourriez juste créer un dossier dans public et inclure vos fichiers .**js** et .**css**, mais la bonne pratique consiste à utiliser un outil comme **Webpack**. Symfony possède l'extension **Webpack Encore**, qui facilite énormément l'installation et utilisation de Webpack.
+**Projet:** ProjetAssetMapper
 
-Le but de Webpack est de **centraliser la charge de tout notre code JS et CSS dans un seul** (ou éventuellement plusieurs si on le souhaite) **fichier .js**. Webpack permet en plus de compiler, minimiser et découper en morceaux notre code pour optimiser le chargement dans l'application.
+Créez ce projet, ainsi qu'un controller **AccueilController**
 
-On va procéder à installer Webpack dans un projet vide  (ou dasn votre propre projet) et réaliser
-quelques exemples. Créez un projet **ExemplesWebpack** et un controller **MainController** (le projet complet est disponible dans le repo).
-
-En plus de configurer webpack pour gérer nos .js et .css, on va faire le necéssaire pour installer **bootstrap** et **axios** dans notre projet et ne plus utiliser des CDNs.
-
-<br>
-
-## 28.1. Installation de Webpack Encore et de Node
+https://symfony.com/doc/current/frontend/asset_mapper.html
 
 
-0. **Installez Node.js**
+L'**AssetMapper est un composant de Symfony qui simplifie la gestion des assets (fichiers statiques comme les images, les fichiers CSS et JavaScript)** dans une application Symfony. Voici un tutoriel détaillé pour utiliser AssetMapper dans Symfony.
 
-https://nodejs.org/en/download/
+AssetMapper utilise Node, vous devez l'installer:
 
-<br>
-
-1.  **Installez le module Webpack Encore dans votre projet**
-
-```console
-symfony composer req symfony/webpack-encore-bundle
 ```
-
-**Cette installation ('recipe'):**
-
-- Crée le dossier **/assets** (à ne pas confondre avec un possible dossier **/public/assets** qu'on aurait pu créer avant d'utiliser Webpack Encore
-
-- Crée le fichier **/assets/app.js** qui, dans un prémier moment,  centralisera la charge de tout le code **js** et **css** (voir **entryPoints** plus tard, car on peut avoir plusieurs fichiers où on compile le code)
-
-- Crée un fichier **/webpack.config.js** qui contient la configuration du module
-
-1. **Installez le dépendances JS de Webpack Encore**. Lancez :
-
-```console
-npm install 
-```
-
-```console
-yarn install
-```
-
-Cette ligne crée le dossier **node_modules** contenant les dépendances (du code .js) dont Encore a besoin. Le dossier est rajouté ./gitignore
-
-
-<br>
-
-## 28.2. Configurer Webpack Encore 
-
-<br>
-
-
-Dans cette section on configure webpack et on lui indique quels sont les fichiers de script qu'on va utiliser dans notre app.
-
-<br>
-
-Ouvrez le fichier **/webpack.config.js** pour configurer Encore. Vous
-pouvez personnaliser Encore selon vos besoins :
-
-.**setOutputPath** : emplacement des fichiers **compilés**
-
-.**setPublicPath** : le chemin utilisé par le serveur (ex: dans le code
-des vues) pour accéder l'OutputPath qu'on vient de mentionner
-
-**Note**:  uniquement sur le serveur d'Interface 3 on doit changer 
-```
-.setPublicPath('/build')  
-```
-vers: 
-```
-.setPublicPath('/project1/public/build')  // au lieu de .setPublicPath('build') à cause du ALIAS d'APACHE (uniquement serveur Interface3)
-```
-
-.**addEntry** **('app','./assets/app.js')** : on aura un
-**entry** pour **chaque fichier .js qui regroupe un ensemble de code**. Ici on a crée un entry portant le nom "app" qui pointe vers un fichier
-app.js. On peut avoir d'autres Entries (d'autres fichiers) dont le code sera rajouté au code final.
-
-Vous pouvez carrement rajouter de fichiers .js et donner un nom pour l'entry:
-```js
-    .addEntry('exemple1AjaxFormData','./assets/exemple1AjaxFormData.js')
-    .addEntry('autreJs','./assets/autreJs.js')
-```
-Puis vous **copiez votre fichier .js dans l'emplacement que vous avez indiquez dans l'Entry**. Cette procédure va indiquer à Webpack quels seront les fichiers .js qu'on va avoir dans notre app.
-
-Continuez pour savoir comment les utiliser dans vos vues.
-
-
-**Note**: Ouvrez le fichier **app.js** et observez qu'on importe le **.css**! (Concrètement on importe le fichier **/assets/css/app.css**)
-
-<br>
-
-## 28.3. Lancer Webpack 
-
-<br>
-
-Maintenant on doit compiler les fichiers.
-Vous pouvez utilisez **npm** ou **yarn**. Ce n'est pas une bonne idée de melanger les deux.
-
-Pour compiler les assets une seule fois, lancez
-
-```console
-npm run dev
-```
-**ou**
-
-```console
-yarn encore dev
-```
-
-
-Si on ne veut pas récompiler à chaque changement dans le .js ou le .css, on lancera :
-
-```console
-npm run watch
-```
-
-**ou**
-
-```console
-yarn encore dev --watch
-```
-
-npm (ou yarn) lancera un **serveur* qui detectera (presque toujours :D) les changements dans les fichiers .js et .css et recompilera par lui-même. Attention car il ne detectera pas vos erreurs dans js (observez bien la console du navigateur pendant l'execution de votre code)
-
-Si vous obtenez des erreurs de compilation, il se peut que vous deviez arreter et ré-demarrer le serveur (CTRL-c)
-
-Finalement, et juste quand l'app est finie et on veut créer la version de production, on lance :
-
-```console
-npm run build
-```
-
-ou 
-
-```console
-yarn encore production
-```
-
-Webpack Encore compilera le code JS et CSS final dans le dossier **public/build**. Le dossier contiendra un nouveau fichier **app.js** et un **app.css** qui rassembleront tout le contenu JS et CSS (ainsi que les fichiers **manifest.json**, **entrypoints.json**, **runtime.js**) **sauf si on a crée plusieurs entries. Dans ce cas on aura plusieurs fichiers**
-
-<br>
-
-## 28.4. Importer les scripts dans les vues
-
-<br>
-
-Dans cette section on voit comment importer le code js dans nos vues, c'est très simple.
-
-Pour faciliter l'utilisation de Webpack dans les templates on a deux fonctions: 
-
-{{ encore_entry_link_tags ('app') }}
-{{ encore_entry_script_tags ('app') }}
-
-Ce sont les **Helpers** Vous pouvez inclure ces appels dans vos blocs **javascripts** et **css** dans les vues.
-
-Pour inclure le **css** qui apparait dans votre entry: 
-
-```twig
-{{ encore_entry_link_tags ('app') }}
-```
-
-Pour inclure le **js** qui apparait dans votre entry :
-```twig
-{{ encore_entry_script_tags ('app') }}
-```
-
-<br>
-
-**Note**: Le js et css qui apparait dans votre entry est compilé et existe en **build** de toute façon. 
-Vous avez le choix de l'inclure dans votre vue ou pas, mais le code compilé existe toujours. 
-
-<br>
-
-La reference 'app' est configurée dans le fichier **entrypoints.json**,
-qui a été crée à partir de votre fichier **webpack.config.js**. Vous pouvez utiliser un autre nom et, Comme nous l'avons déjà dit, avoir plusieurs **entries** ('app', 'autre', 'main'...)
-
-
-Par exemple :
-```twig
-{{ encore_entry_script_tags ('exemple1AjaxFormData') }}
-{{ encore_entry_script_tags ('autreJS') }}
-```
-
-
-<br>
-
-
-## 28.5. Exemple d'utilisation de Webpack avec un fichier pour une vue specifique
-
-<br>
-
-Voici un exemple de code où on utilise Webpack pour inclure du .js et .css dans une vue concrete. On crée du .css et .js qu'on va inclure dans une vue concrete.
-
-<br>
-
-**0**. Lancez **npm install** ou **yarn install**  pour installer les dependances d'Encore
-
-
-**1**. Créez votre fichier **/assets/styles/vue1.css** contenant votre code .css
-
-```css
-h1 {
-    color: green;
-}
-```
-
-**2**. Créez votre fichier **/assets/vue1.js** contenant **votre code js et l'importation du css** précédant
-
-```js
-import './styles/vue1.css'; // on importe le .css depuis le fichier .js!
-
-// votre code js se trouve ici
-alert ("vue1 js!"); 
-.
-.
-.
-```
-
-<br>
-
-**3**. Rajoutez l'entry dans **webpack.config.js**
-
-L'entry pointera vers un fichier .js que vous allez inclure dans *assets*.
-Observez qu'il n'y a pas une entry pour .css car on a importé le .css depuis le fichier .js de l'entry (ici *vue1.js*)
-
-```js
-.
-.
-
-    /*
-     * ENTRY CONFIG
-     *
-     * Each entry will result in one JavaScript file (e.g. app.js)
-     * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
-     */
-    .addEntry('app', './assets/app.js')
-    .addEntry('vue1', './assets/vue1.js') // notre nouvelle entry
-.
-.   
+composer require symfony/asset-mapper symfony/asset symfony/twig-pack
 ``` 
 
+Plusieurs fichiers seront crées:
 
-**4**. Créez un controller. Rajoutez une **action** *vue1Webpack*.
-La vue associée aura son propre css et js.
 
+- **assets/app.js** - Fichier .js principal (on peut avoir d'autres)
+
+- **assets/styles/app.css** - Fichier CSS principal (on peut avoir d'autres)
+
+Observez que dans **app.js** on charge **app.css**
+
+- **config/packages/asset_mapper.yaml** - Fichier contenant les "paths" pour les assets
+
+- **importmap.php** - Fichier de configuration pour les importations (ex: bootstrap, tailwind, etc...) et nos propres scripts (app.js, panier.js etc...)
+
+Le fichier **base.html.twig** sera modifié aussi automatiquement:
+
+```
+{% block javascripts %}
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
+{% endblock %}
+```
+
+## Le fichier importmap.php
+
+Ce fichier contient des **entrypoints**. Un entrypoint fait référence à un fichier .js. Le fichier .js charge dans son code un fichier .css tel qu'on l'a vu dans **app.js**.
+
+On va tester le fonctionnement. Créez l'action suivante:
 
 ```php
-#[Route('vue1/webpack')]
-public function vue1Webpack (){
-    return $this->render ('/exemples_routing/vue1_webpack.html.twig');
+
+<?php
+
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class AccueilController extends AbstractController
+{
+    #[Route('/', name: 'accueil')]
+    public function index(): Response
+    {
+        return $this->render('accueil/index.html.twig');
+    }
+}
+
+```
+
+Le fonctionnement est bien simple: on crée une structure dans le dossier **/assets** contenant nos assets (.js, .css, images, etc...) et
+on peut les utiliser dans les twig.
+
+Exemple (fichier twig **templates/accueil/index.html.twig**):
+
+Lancez l'action et observez que le code de /assets/app.js est lancé et le fichier /assets/styles/app.css chargé.
+Il est lancé car index.html.twig hérite de **base.html.twig** qui contient ce code:
+
+```php
+{% block javascripts %}
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
+{% endblock %}
+```
+
+## Importation directe de librairies: bootstrap, jQuery, fontawesome, axios, ...
+
+Vous pouvez importer beaucoup des packages connus facilement:
+
+```
+symfony console importmap:require bootstrap
+symfony console importmap:require jquery
+symfony console importmap:require @fortawesome/fontawesome-free/css/all.css
+symfony console importmap:require axios
+```
+
+Voici le fichier app.js, l'entrypoint par défaut.
+On l'a modifié pour déclarer la variable $ dont jQuery a besoin.
+On a rajouté le css de bootstrap et fontawesome, 
+
+
+```js
+import './bootstrap.js';
+/*
+ * Welcome to your app's main JavaScript file!
+ *
+ * This file will be included onto the page via the importmap() Twig function,
+ * which should already be in your base.html.twig.
+ */
+
+// importer le .css de bootstrap et fontawesome
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fortawesome/fontawesome-free/css/all.css';
+
+import './styles/app.css';
+
+console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+
+
+// jquery config!
+import $ from 'jquery';
+// things on "window" become global variables
+window.$ = $;
+
+console.log ($);  
+```
+
+
+Ouvrez le fichier **importmap.php** et observez son contenu:
+
+```php
+<?php
+
+/**
+ * Returns the importmap for this application.
+ *
+ * - "path" is a path inside the asset mapper system. Use the
+ *     "debug:asset-map" command to see the full list of paths.
+ *
+ * - "entrypoint" (JavaScript only) set to true for any module that will
+ *     be used as an "entrypoint" (and passed to the importmap() Twig function).
+ *
+ * The "importmap:require" command can be used to add new entries to this file.
+ */
+return [
+    'app' => [
+        'path' => './assets/app.js',
+        'entrypoint' => true,
+    ],
+    // on rajoute nos propres entrypoints, des scripts propres à chaque page
+    // le .css portant le même nom sera aussi chargé!
+    // 'panier' => [
+    //     'path' => './assets/panier.js',
+    //     'entrypoint' => true,
+    // ],
+    // 'paiement' => [
+    //     'path' => './assets/paiement.js',
+    //     'entrypoint' => true,
+    // ],
+    '@hotwired/stimulus' => [
+        'version' => '3.2.2',
+    ],
+    '@symfony/stimulus-bundle' => [
+        'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
+    ],
+    '@hotwired/turbo' => [
+        'version' => '7.3.0',
+    ],
+    'bootstrap' => [
+        'version' => '5.3.3',
+    ],
+    '@popperjs/core' => [
+        'version' => '2.11.8',
+    ],
+    'bootstrap/dist/css/bootstrap.min.css' => [
+        'version' => '5.3.3',
+        'type' => 'css',
+    ],
+    'jquery' => [
+        'version' => '3.7.1',
+    ],
+    'axios' => [
+        'version' => '1.7.2',
+    ],
+];
+
+```
+
+Si on clone le projet dans un autre ordinateur on devra lancer:
+
+```
+symfony console importmap:install
+```
+
+Ou updater lister les packages qui ne sont plus à jour 
+```
+symfony console  importmap:outdated
+```
+On peut updater aux dernieres versions:
+```
+symfony console importmap:update
+```
+
+## Images
+
+Le système est très simple: créez un dossier dans /assets (ex: images) et mettez vos images à l'intérieur. Puis faites référence en utilisant la fonction de twig **asset** et le chemin de l'image.
+
+```html
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AccueilController!{% endblock %}
+
+{% block body %}
+<h1>Bienvenue au site!</h1>
+<img src="{{ asset ('/images/felix.png')}}">
+{% endblock %}
+```
+
+L'asset **chat.png** sera cherché dans **/assets/images**.
+
+
+
+
+## Production
+
+On doit copier tous les fichiers dans **/public/assets** pour permettre au serveur de les servir directement.
+
+```
+symfony console sass:build (si on utilise sass, ex. Tailwind)
+symfony console asset-map:compile
+```
+
+
+Plus d'info ici: https://symfony.com/doc/current/frontend/asset_mapper.html#asset-mapper-deployment
+
+
+```console
+symfony console asset-map:compile
+```
+
+## Exemple d'utilisation d'AssetMapper avec un fichier pour une vue specifique
+
+<br>
+
+Créez une action **action1** qui charge une vue **action1.html.twig**
+
+L'action:
+
+```php
+#[Route('/action1', name: 'action1')]
+public function action1(): Response
+{
+    return $this->render('accueil/action1.html.twig');
 }
 ```
 
-**5**. Faites la **vue** *vue1_webpack.html.twig*, qui utilisera l'entry **vue1** (à définir plus tard dans *webpack.config.js*)
+La vue:
 
-```twig
-{% extends "base.html.twig" %}
+```php
+
+{% block title %}Hello AccueilController!{% endblock %}
 
 {% block body %}
-	test webpack
-	<h1>test css webpack</h1>
-	{% block stylesheets %}
-		{{ encore_entry_link_tags('vue1') }}
-	{% endblock %}
 
-	{% block javascripts %}
-		{{ encore_entry_script_tags('vue1') }}
-	{% endblock %}
+<h1>Bonjour à tous depuis action1. Je vais avoir les deux scripts et css, app et autreBloc!</h1>
+On aurait pu avoir aussi un seul script (app ou autreBloc)
+
+{% block javascripts %}
+    {% block importmap %}{{ importmap(['app','autreBloc']) }}{% endblock %}
+{% endblock %}
 
 {% endblock %}
 ```
-Peu importe le nom de vos entries, mais il doit être cohérent avec la config qu'on va créer dans *webpack.config.js*
 
-Compilez votre code en utilisant encore :
+Créez les fichiers **/assets/autreBloc.js** et **/assets/styles/autreBloc.css**
 
-```console
-npm run watch
-```
-ou 
+```js
+import "./styles/autreBloc.css";
 
-```
-yarn encore dev --watch
+alert("je suis un autre bloc js");
+console.log ("autreBloc.js");
 ```
 
-**watch** indique que encore compilera à chaque changement du code.
+```css
+body {
+    color: rgb(135, 235, 165);
+}
+``` 
 
-Si vous voulez juste compiler une fois, utilisez
+On rajoute un **entrypoint** dans **importmap.php**
 
+```js
+.
+.
+.
+return [
+    'app' => [
+        'path' => './assets/app.js',
+        'entrypoint' => true,
+    ],
+    // nouvel entrypoing
+    'autreBloc' => [
+        'path' => './assets/autreBloc.js',
+        'entrypoint' => true,
+    ],
+.
+.
+.
 ```
-yarn encore dev 
-```
 
-ou 
 
-```console
-npm run dev
-```
-
-Si vous voulez compiler pour production, utilisez 
-
-```
-yarn encore production
-```
-ou 
-
-```console
-npm run build
-```
 
 <br>
-
-
-
-## 28.6. Encore et Bootstrap
-
-<br>
-
-Ici on explique comment installer bootstrap dans notre projet en utilisant Webpack Encore.
-
-**Installez bootstrap :**
-
-```console
-npm add bootstrap 
-```
-
-**ou**
+.........................................................
 
 ```console
 yarn add bootstrap 

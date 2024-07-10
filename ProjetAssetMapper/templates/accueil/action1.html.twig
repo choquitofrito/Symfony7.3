@@ -1,0 +1,14 @@
+
+
+{% block title %}Hello AccueilController!{% endblock %}
+
+{% block body %}
+
+<p class="h1">Bonjour à tous depuis action1. Je vais avoir les deux scripts et css, app et autreBloc!</p>
+On aurait pu avoir aussi un seul script (app ou autreBloc)
+
+{% block javascripts %}
+    {% block importmap %}{{ importmap(['app','autreBloc']) }}{% endblock %}
+{% endblock %}
+
+{% endblock %}
