@@ -1,0 +1,30 @@
+{# templates/post/show.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ post.titre }}{% endblock %}
+
+{% block body %}
+    <h1>{{ post.titre }}</h1>
+    <p>{{ post.contenu }}</p>
+    <a href="{{ path('post_edit', {'id': post.id}) }}">Edit</a>
+    <form method="post" action="{{ path('post_delete', {'id': post.id}) }}" onsubmit="return confirm('Are you sure you want to delete this post?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
+        <button class="btn">Delete</button>
+    </form>
+    <h2>Comments</h2>
+    <ul id="comment-list"></ul>
+    <script>
+        axios.get(`/api/posts/' .{{ post.id }} . '/comments`)
+            .then(response => {
+                const commentaires = response.data;
+                const commenairestList = document.getElementById('comment-list');
+                comments.forEach(commentaire => {
+                    const li = document.createElement('li');
+                    li.textContent = commentaire.contenu;
+                    commentairesList.appendChild(li);
+                });
+            })
+            .catch(error => console.error(error));
+    </script>
+{% endblock %}

@@ -15,7 +15,7 @@ class PostFixtures extends Fixture implements DependentFixtureInterface
     {
         $faker = Factory::create();
 
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 150; $i++) {
             $post = new Post();
             $post->setTitre($faker->sentence);
             $post->setContenu($faker->paragraph);

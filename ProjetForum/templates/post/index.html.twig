@@ -1,20 +1,26 @@
+{# templates/post/index.html.twig #}
+
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello PostController!{% endblock %}
+{% block title %}Posts{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/xampp/htdocs/Symfony7/ProjetForum/src/Controller/PostController.php</code></li>
-        <li>Your template at <code>C:/xampp/htdocs/Symfony7/ProjetForum/templates/post/index.html.twig</code></li>
+    <h1>Posts</h1>
+    <ul id="post-list">
+        {% for post in posts %}
+            <li>
+                <a href="{{ path('post_show', {'id': post.id}) }}">{{ post.titre }}</a>
+                <button data-id="{{ post.id }}" class="delete-post">Delete</button>
+            </li>
+        {% endfor %}
     </ul>
-</div>
+    
+    <div class="pagination">
+        {% if page_actuelle > 1 %}
+            <a href="{{ path('post_index', {'page': page_actuelle - 1}) }}">Previous</a>
+        {% endif %}
+        {% if page_actuelle < total_pages %}
+            <a href="{{ path('post_index', {'page': page_actuelle + 1}) }}">Next</a>
+        {% endif %}
+    </div>
 {% endblock %}

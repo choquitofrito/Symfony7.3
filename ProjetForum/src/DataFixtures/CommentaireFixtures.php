@@ -14,7 +14,7 @@ class CommentaireFixtures extends Fixture implements DependentFixtureInterface
     {
         $faker = Factory::create();
 
-        for ($i = 1; $i <= 50; $i++) {
+        for ($i = 1; $i <= 500; $i++) {
             $commentaire = new Commentaire();
             $commentaire->setContenu($faker->sentence);
             $commentaire->setDateCreation($faker->dateTimeThisYear);
