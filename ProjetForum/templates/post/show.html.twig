@@ -9,10 +9,13 @@
     <h1>{{ post.titre }}</h1>
     <p>{{ post.contenu }}</p>
     <a href="{{ path('post_edit', {'id': post.id}) }}">Edit</a>
+
     <form method="post" action="{{ path('post_delete', {'id': post.id}) }}" onsubmit="return confirm('Are you sure you want to delete this post?');">
+        {# token csrf pour éviter le hacking csrf #}
         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
         <button class="btn">Delete</button>
     </form>
+    
     <h2>Commentaires</h2>
     <ul id="commentaire-list">
         {% for commentaire in commentaires %}
@@ -23,6 +26,7 @@
         {{ form_widget(commentaire_form) }}
         <button type="submit">Add Comment</button>
     {{ form_end(commentaire_form) }}
+
     <script>
         document.getElementById('commentaire-form').addEventListener('submit', function(event) {
             

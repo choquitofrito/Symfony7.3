@@ -26,12 +26,21 @@ class PostController extends AbstractController
         // si on change de page, on charge un nouveau lot de 10
         $page = $request->query->getInt('page', 1);
         $limit = 10;
+        // obtenir un nombre limité de posts
+        // [] est le filtre (aucun filtre)
+        // null -> pas d'ordre
+        // limit -> nombre d'enregistrements
+        // offset -> obtenir les enregistrements à partir de l'enregistrement ($page - 1) * $limit
+        // Ex: obtenir les 10 enregistrements à partir de l'enregistrement X
+        // ici: si c'est p.e. la troisième page on aura ($page -1) * limit = (3 - 1) * 10 = 20
+        // et on obtiendra 10 enregistrements à partir de l'enregistrement 20 
         $posts = $postRepository->findBy([], null, $limit, ($page - 1) * $limit);
 
         return $this->render('post/index.html.twig', [
             'posts' => $posts,
-            'page_actuelle' => $page,
-            'total_pages' => ceil(count($postRepository->findAll()) / $limit),
+            'page_actuelle' => $page, // dans la vue, on a besoin de connaitre la page où on se trouve
+            'total_pages' => ceil(count($postRepository->findAll()) / $limit), // arrondir par le haut de la division du nombre d'enregistrements 
+                                                                                // entre le nombre d'enregistrements qui seront affichés par page
         ]);
     }
 
