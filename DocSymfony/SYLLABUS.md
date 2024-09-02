@@ -1529,17 +1529,15 @@ Créez un controller ExercicesVuesController.php
     afficher "Le prix xxxx euros avec le taux de TVA de xxxx % est x
     xxx"
 
-3.  Créez une nouvelle action qui affiche un array de trois villes
-    belges. Les villes sont fixées et se trouvent dans la vue, ne sont
-    pas envoyées par le controller à la vue
+3.  Créez une nouvelle action qui affiche le nom de trois villes
+    belges. La liste de villes est envoyée depuis le controller à la vue dans un array.
+    L'action reçoit un paramètre concernant la langue. Si la valeur du paramètre est FR les 
+    noms des villes seront affichés en FR. Si la valeur est NL les noms seront affichés en néerlandais
 
-4.  Créez une nouvelle version de l'exercice précédent où la liste de
-    villes est envoyée depuis le controller à la vue dans un array
-
-5.  Créez une nouvelle version de l'exercice 4. Cette fois l'action
+4.  Créez une nouvelle version de l'exercice 4. Cette fois l'action
     reçoit la langue d'affichage dans l'URL (FR ou NL). Le choix de la langue se fait grâce à un paramètre reçu par l'action.
 
-6.  Affichez la date actuelle dans la vue. Utilisez la classe DateTime
+5.  Affichez la date actuelle dans la vue. Utilisez la classe DateTime
     et envoyez l'objet à la vue. Dans la vue, utilisez la méthode
     **format** de la classe DateTime pour afficher la date proprement
 
