@@ -271,7 +271,7 @@ Dans Windows, le fichier porte le nom **symfony.exe** et peut être teléchargé
 
 Ceci est un lien direct : 
 
-https://github.com/symfony-cli/symfony-cli/releases/download/v5.9.1/symfony-cli_windows_amd64.zip
+https://github.com/symfony-cli/symfony-cli/releases/download/v5.10.2/symfony-cli_windows_amd64.zip
 
 Decompressez le fichier dans un dossier de votre choix. 
 Vu qu'on doit faire appel à ce fichier depuis la console, le plus simple est de le copier dans xampp/php (**qui se trouve déjà dans le path**).
