@@ -12,7 +12,7 @@
 
 - Création d'un projet
 ```console
-symfony new --full Projet1Symfony5
+symfony new --webapp Projet1Symfony
 ```
 
 ## Serveur interne (vous pouvez utiliser aussi Apache)
