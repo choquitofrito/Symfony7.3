@@ -1,5 +1,7 @@
-<!-- TOC tocDepth:2..3 chapterDepth:2..6 -->
+# Notes sur Symfony 7
 
+
+- [Notes sur Symfony 7](#notes-sur-symfony-7)
 - [1. Configuration de base : Composer, Git, XDebug, Visual Studio](#1-configuration-de-base--composer-git-xdebug-visual-studio)
 - [2. Installation des outils de base de Symfony](#2-installation-des-outils-de-base-de-symfony)
   - [2.1. Installation du client sur OSX et création d'un projet](#21-installation-du-client-sur-osx-et-création-dun-projet)
@@ -187,9 +189,6 @@
   - [Images](#images)
   - [Production](#production)
   - [Exemple d'utilisation d'AssetMapper avec un fichier pour une vue specifique](#exemple-dutilisation-dassetmapper-avec-un-fichier-pour-une-vue-specifique)
-  - [28.7. Gestions des images (en cours)](#287-gestions-des-images-en-cours)
-- [29. Symfony avec Apache. Configuration des Virtual Hosts](#29-symfony-avec-apache-configuration-des-virtual-hosts)
-  - [29.1. Explication de base](#291-explication-de-base)
   - [29.2. Création d'un serveur virtuel (virtual host) pour un projet en Windows](#292-création-dun-serveur-virtuel-virtual-host-pour-un-projet-en-windows)
     - [Exercice : création d'un projet contenant l'application skeleton](#exercice--création-dun-projet-contenant-lapplication-skeleton)
 - [30. Intégration de boutons de paiement Paypal](#30-intégration-de-boutons-de-paiement-paypal)
@@ -205,33 +204,6 @@
     - [1. Modèle](#1-modèle)
     - [2. Controllers et vues](#2-controllers-et-vues)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  - [28.1. Installation de Webpack Encore et de Node](#281-installation-de-webpack-encore-et-de-node)
-  - [28.2. Configurer Webpack Encore](#282-configurer-webpack-encore)
-  - [28.3. Lancer Webpack](#283-lancer-webpack)
-  - [28.4. Importer les scripts dans les vues](#284-importer-les-scripts-dans-les-vues)
-  - [28.5. Exemple d'utilisation de Webpack avec un fichier pour une vue specifique](#285-exemple-dutilisation-de-webpack-avec-un-fichier-pour-une-vue-specifique)
-  - [28.6. Encore et Bootstrap](#286-encore-et-bootstrap)
-  - [28.7. Gestions des images (en cours)](#287-gestions-des-images-en-cours)
-- [29. Symfony avec Apache. Configuration des Virtual Hosts](#29-symfony-avec-apache-configuration-des-virtual-hosts)
-  - [29.1. Explication de base](#291-explication-de-base)
-  - [29.2. Création d'un serveur virtuel (virtual host) pour un projet en Windows](#292-création-dun-serveur-virtuel-virtual-host-pour-un-projet-en-windows)
-    - [Exercice : création d'un projet contenant l'application skeleton](#exercice--création-dun-projet-contenant-lapplication-skeleton)
-- [30. Intégration de boutons de paiement Paypal](#30-intégration-de-boutons-de-paiement-paypal)
-- [31. Création de commandes de console (en cours)](#31-création-de-commandes-de-console-en-cours)
-- [31. (EN COURS, A NE PAS SUIVRE) Deserialization (transformation de JSON, CSV... en objets)](#31-en-cours-a-ne-pas-suivre-deserialization-transformation-de-json-csv-en-objets)
-- [END](#end)
-  - [jQuery](#jquery)
-- [4. Installation de packages dans un projet Symfony Flex](#4-installation-de-packages-dans-un-projet-symfony-flex)
-- [(En cours, cette doc. appartient à Symfony 4) Traduction des messages de succès/erreur](#en-cours-cette-doc-appartient-à-symfony-4-traduction-des-messages-de-succèserreur)
-  - [Annexe (en cours, brouillon): les pas pour la création d'un projet](#annexe-en-cours-brouillon-les-pas-pour-la-création-dun-projet)
-    - [Analyse](#analyse)
-    - [Implementation](#implementation)
-    - [1. Modèle](#1-modèle)
-    - [2. Controllers et vues](#2-controllers-et-vues)
-
-<!-- /TOC -->
 
 <br>
 <br>
@@ -3109,7 +3081,7 @@ On aurait pu même fusioner les deux actions.
 
 <br>
 
-Dans une application web, les classes qui contiennent les données de l'application s'appellent **entités** (les classes de notre diagramme de classes) et on doit les définir.
+Dans une application web, les classes qui représentent les données de l'application s'appellent **entités** (les classes de notre diagramme de classes) et on doit les définir.
 
 Normalement une entité serait définie à la main dans un fichier contenant une classe (ex: entité Personne -> classe Personne). On doit créer, en plus, une classe Repository pour gérer la persistance de l'entité dans la BD. Ça implique qu'on doit créer deux fichiers pour chaque classe du diagramme... un grand boulot ! Mais on peut se simplifier énormément la vie en utilisant un ORM...
 
@@ -8831,7 +8803,7 @@ La séquence peut être résumée en :
 
 **Code commenté :**
 
--   **Projet** ProjetFormulaires
+-   **Projet** ProjetFormulairesSymfony
 
 -   **Controller** ExemplesAjaxAxiosController, actions :
 
@@ -10330,27 +10302,6 @@ return [
 <br>
 .........................................................
 
-```console
-yarn add bootstrap 
-```
-
-Les librairies de Bootstrap seront copiées dans le dossier **node_modules**.
-
-Bootstrap utilise JQuery et la variable JQuery (raccourcie $). Quand on inclut Bootstrap avec une balise SCRIPT, le code attend que jQuery soit une variable globale. On change le **app.js** pour importer **bootstrap**, qui se trouve maintenant dans node_modules :
-
-
-```js
-// app.js
-import './styles/app.css';
-// rajouter
-// jquery
-const $ = require ('jquery');
-window.jQuery = $;
-window.$ = $;
-// importer bootstrap
-import 'bootstrap';
-```
-
 Bootstrap a besoin de  **popper.js** (pop-up):
 
 Installez le avec yarn ou npm (pas les deux, SVP):
@@ -10385,140 +10336,6 @@ npm install font-awesome
 
 <br>
 
-
-## 28.7. Gestions des images (en cours)
-
-<br>
-
-On peut, optionnellement, gérer les images de notre site avec Webpack.
-
-Il y a plusieurs manières de gérer les images statiques de votre site: 
-
-
-**Méthode 1.** Créer un *lien directe* dans votre vue (rudimentaire) :
-
-```twig   
-<img src="/images/loup.jpg" />
-```
-où, si le lien est dans une variable:
-
-```twig
-<img src="/image/{{ animal.getLien }}"/>
-```
-Si vous changez la localisation de votre dossier images (ex: l'inclure dans un dossier public/assets) vous allez devoir changer toutes vos vues!
-
-
-<br>
-
-
-**Méthode 2**. Utiliser la fonction **asset**. On peut choisir un **base path** qu'on peut changer si on veut dans la config pour éviter le problème mentionné ci-dessus (on ne l'etudiera ici).
-Ceci est la méthode standard.
- 
-Symfony part du dossier **public**.
-
-Ex: charger une image de **public/images**
-
-```twig
-<img src="{{ asset ('images/loup.jpg') }}">  
-```
-
-Ex: charger une image de **public/images**. On ne connait pas le nom exact, il se trouve dans une variable (objet animal).
-On utilise la méthode getLien pour l'obtenir (pas besoin de parenthéses)
-
-```twig
-<img src="{{ asset ('images/' ~ animal.getLien ) }}">  
-```
-
-N'oubliez pas d'installer les dépendances de Webpack et compiler les assets .js et .css (même si nos assets ne se trouvent pas dans /assets actuellement, mais dans **public/assets**)
-
-Lancez:
-
-```
-npm install
-npm run dev
-```
-
-Puis vous pouvez charger l'action dans le navigateur
-
-
-<br>
-
-**Méthode 3.** Stocker les images dans **/assets** (dossier pour Webpack, à ne pas confondre avec **public/assets**), ce qui permet de centraliser l'emplacement de tout le **.js**, **.css** et **images**, et configurer Webpack pour qu'il copie les images dans le dossier de compilation (*/public/build* ou autre de notre choix)
-
-Pour ce faire, on doit dire à webpack de copier nos images depuis /assets dans le dossier voulu (crée par vous-même) de public: 
-
-Dans **webpack.config.js** : 
-
-```js
-.copyFiles({
-    from: './assets/imagesStatiques',
-    to: 'imagesStatiques/[path][name].[hash:8].[ext]'
-
-})
-```
-**ATTENTION** aux paths
-
-<br>
-
-**copyFiles** à plein d'options, ici on voit que les basiques:
-https://symfony.com/doc/current/frontend/encore/copy-files.html
-Installez le module **file-loader** pour que webpack puisse faire le déplacement de vos fichiers.
-
-```console
-npm install file-loader
-```
-
-Dans ce cas, **il faut compiler** pour que les images soient copiées. N'utilisez pas cette méthode pour afficher des images uploades avec un form car **on ne compile pas à chaque upload d'images** une fois que le site est en ligne.
-
-
-
-<br>
-
-<br>
-
-# 29. Symfony avec Apache. Configuration des Virtual Hosts
-
-Cette section explique comment heberger Symfony dans un serveur Apache **local**. Si vous utilisez le serveur inclut dans Symfony avec la commande **symfony serve**, passez à la section suivante.
-
-
-<br>
-
-## 29.1. Explication de base
-
-Considérez qu'on a une application web qui se trouve dans le dossier
-
-    C:/xampp/htdocs/Symfony5/projet1symfony/web
-
-Normalement on devrait saisir cette URL pour y accéder :
-
-```
-    localhost/Symfony5/projet1symfony/public/index.php
-``` 
-ou
-``` 
-    localhost/Symfony5/projet1symfony/public
-```
-
-Apache permet d'utiliser la technique de réécriture d'URL. Cela nous permettra, par exemple, d'avoir un projet
-qui se trouve dans
-
-    C:/xampp/htdocs/Symfony5/projet1symfony/public
-
-Et en accéder en utilisant tout simplement cette URL :
-
-    projet1symfony.localhost
-
-Nous devons configurer cette correspondance dans le fichier
-
-    /xampp/apache/conf/extra/httpd-vhosts.conf
-
-(config. en Windows. Si on utilise OSX ou Linux le fichier se trouve ailleurs. Les indications pour ces systèmes se trouvent dans les sections qui suivent)
-
-Le nom vhosts vient du fait qu'on est en train de créer un **serveur virtuel**.
-
-C'est Apache qui transforme une URL dans autre, mais toujours selon nos
-règles.
-<br>
 
 ## 29.2. Création d'un serveur virtuel (virtual host) pour un projet en Windows
 
@@ -11369,8 +11186,6 @@ traitera pas dans ce tuto.
   
 ### 2. Controllers et vues
 
-- Installez webpack-encore
-- Lancer yarn install
 
 - Créer un prémier controller (p.e. HomeController) et une action home (route "/") auquel on redirige après le login 
 - Créer la vue pour l'action précédante
