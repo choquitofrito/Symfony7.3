@@ -184,25 +184,26 @@
   - [27.1. Installation et exemple pratique](#271-installation-et-exemple-pratique)
   - [27.2. Filtres et pagination (sans Ajax)](#272-filtres-et-pagination-sans-ajax)
 - [28. AssetMapper](#28-assetmapper)
-  - [Le fichier importmap.php](#le-fichier-importmapphp)
+  - [Les entrypoints dans le fichier importmap.php](#les-entrypoints-dans-le-fichier-importmapphp)
   - [Importation directe de librairies: bootstrap, jQuery, fontawesome, axios, ...](#importation-directe-de-librairies-bootstrap-jquery-fontawesome-axios-)
   - [Images](#images)
   - [Production](#production)
   - [Exemple d'utilisation d'AssetMapper avec un fichier pour une vue specifique](#exemple-dutilisation-dassetmapper-avec-un-fichier-pour-une-vue-specifique)
-  - [29.2. Création d'un serveur virtuel (virtual host) pour un projet en Windows](#292-création-dun-serveur-virtuel-virtual-host-pour-un-projet-en-windows)
-    - [Exercice : création d'un projet contenant l'application skeleton](#exercice--création-dun-projet-contenant-lapplication-skeleton)
+- [29. Webpack pour gérer les assets](#29-webpack-pour-gérer-les-assets)
+  - [29.1. Installation de Webpack Encore et de Node](#291-installation-de-webpack-encore-et-de-node)
+  - [29.2. Configurer Webpack Encore](#292-configurer-webpack-encore)
+  - [29.3. Lancer Webpack](#293-lancer-webpack)
+  - [29.4. Importer les scripts dans les vues](#294-importer-les-scripts-dans-les-vues)
+  - [29.5. Exemple d'utilisation de Webpack avec un fichier pour une vue specifique](#295-exemple-dutilisation-de-webpack-avec-un-fichier-pour-une-vue-specifique)
+  - [29.6. Encore et Bootstrap](#296-encore-et-bootstrap)
 - [30. Intégration de boutons de paiement Paypal](#30-intégration-de-boutons-de-paiement-paypal)
 - [31. Création de commandes de console (en cours)](#31-création-de-commandes-de-console-en-cours)
-- [31. (EN COURS, A NE PAS SUIVRE) Deserialization (transformation de JSON, CSV... en objets)](#31-en-cours-a-ne-pas-suivre-deserialization-transformation-de-json-csv-en-objets)
-- [END](#end)
-  - [jQuery](#jquery)
-- [4. Installation de packages dans un projet Symfony Flex](#4-installation-de-packages-dans-un-projet-symfony-flex)
-- [(En cours, cette doc. appartient à Symfony 4) Traduction des messages de succès/erreur](#en-cours-cette-doc-appartient-à-symfony-4-traduction-des-messages-de-succèserreur)
-  - [Annexe (en cours, brouillon): les pas pour la création d'un projet](#annexe-en-cours-brouillon-les-pas-pour-la-création-dun-projet)
-    - [Analyse](#analyse)
-    - [Implementation](#implementation)
+- [32. (EN COURS, A NE PAS SUIVRE) Deserialization (transformation de JSON, CSV... en objets)](#32-en-cours-a-ne-pas-suivre-deserialization-transformation-de-json-csv-en-objets)
+  - [Annexe 1: Implementation](#annexe-1-implementation)
     - [1. Modèle](#1-modèle)
     - [2. Controllers et vues](#2-controllers-et-vues)
+  - [Annexe 2. Création d'un serveur virtuel (virtual host) pour un projet en Windows](#annexe-2-création-dun-serveur-virtuel-virtual-host-pour-un-projet-en-windows)
+    - [Exercice : création d'un projet contenant l'application skeleton](#exercice--création-dun-projet-contenant-lapplication-skeleton)
 
 
 <br>
@@ -3166,7 +3167,7 @@ Notre base de données portera le nom **bibliotheque**, alors on obtient. Par d�
 DATABASE_URL=mysql://root:@127.0.0.1:3306/bibliotheque?serverVersion=10.11.2-MariaDB&charset=utf8mb4
 ```
 
-**ATTENTION: **La version de MariaDB (MySql) doit correspondre à celle de XAMPP. Pour la connaitre, allez dans la page d'accueil de phpmyadmin 
+**ATTENTION:** La version de MariaDB (MySql) doit correspondre à celle de XAMPP. Pour la connaitre, allez dans la page d'accueil de phpmyadmin 
 
 
 3. Allumez le serveur de BD (MySQL dans notre cas) et **créez la BD**
@@ -9997,6 +9998,15 @@ On a choisi, par défaut, d'envoyer déjà un ensemble de résultats à la vue (
 
 # 28. AssetMapper
 
+Si vous voulez utiliser du JS et CSS vous pourriez juste créer un dossier dans public et inclure vos fichiers .**js** et .**css**, mais la bonne pratique consiste à utiliser un outil comme **AssetMapper** ou **Webpack**
+
+**AssetMapper** est un composant de Symfony introduit **pour faciliter la gestion et le mappage des ressources front-end (assets)** comme les images, les feuilles de style ou les fichiers JavaScript dans une application web.
+
+AssetMapper peut être utilisé au lieu d'autres outils comme Webpack bien qu'il ne peut pas le remplacer completement. 
+
+AssetMapper est préféré pour des projets qui n'ont pas des pré-requis complexes (plein! 😊) concernant les assets, car il est beaucoup plus simple que Webpack (pour lequel on doit installer Node et gérer ses versions... ce qui devient souvent un vrai cauchemar)
+
+
 **Projet:** ProjetAssetMapper
 
 Créez ce projet, ainsi qu'un controller **AccueilController**
@@ -10004,7 +10014,7 @@ Créez ce projet, ainsi qu'un controller **AccueilController**
 https://symfony.com/doc/current/frontend/asset_mapper.html
 
 
-L'**AssetMapper est un composant de Symfony qui simplifie la gestion des assets (fichiers statiques comme les images, les fichiers CSS et JavaScript)** dans une application Symfony. Voici un tutoriel détaillé pour utiliser AssetMapper dans Symfony.
+Voici un tutoriel détaillé pour utiliser AssetMapper dans Symfony.
 
 AssetMapper utilise Node, vous devez l'installer:
 
@@ -10015,25 +10025,34 @@ composer require symfony/asset-mapper symfony/asset symfony/twig-pack
 Plusieurs fichiers seront crées:
 
 
-- **assets/app.js** - Fichier .js principal (on peut avoir d'autres)
+- **assets/app.js** - Prémier fichier .js principal. On peut avoir d'autres (imaginez monCalendrier.js, panier.js etc...)
 
-- **assets/styles/app.css** - Fichier CSS principal (on peut avoir d'autres)
+- **assets/styles/app.css** - Fichier CSS principal (pareil qu'avec les .js, on peut avoir d'autres)
 
-Observez que dans **app.js** on charge **app.css**
+**Important:** Observez que dans **app.js** on charge **app.css**
 
-- **config/packages/asset_mapper.yaml** - Fichier contenant les "paths" pour les assets
+- **config/packages/asset_mapper.yaml** - Fichier contenant les "paths" pour les assets (les chemins où les fichiers se trouvent sur le disque)
 
-- **importmap.php** - Fichier de configuration pour les importations (ex: bootstrap, tailwind, etc...) et nos propres scripts (app.js, panier.js etc...)
+- **importmap.php** - Fichier de config contenant la liste de tous les scripts qu'on va utiliser dans notre application (app.js, panier.js etc...) ainsi que les scripts externes (ex: bootstrap, tailwind, etc...) 
 
-Le fichier **base.html.twig** sera modifié aussi automatiquement:
+Le fichier **base.html.twig** sera modifié aussi automatiquement quand on installe AssetMapper, et contiendra le bloc **importmap**. On ne l'a pas utilisé consciemment pour le moment, ce qui ne provoque aucun erreur.
+Mais maintenant vous allez comprendre pourquoi le fond d'écran est bleu quand on fait extends de **base.html.twig**.
 
-```
+```twig
 {% block javascripts %}
     {% block importmap %}{{ importmap('app') }}{% endblock %}
 {% endblock %}
 ```
+Cette ligne:
 
-## Le fichier importmap.php
+```js
+{{ importmap('app') }}
+```
+
+charge l'entrypoint 'app' qui correspond à app.js... qui à son tour charge le fichier app.css... qui fixe la couleur de body en bleu!
+
+
+## Les entrypoints dans le fichier importmap.php
 
 Ce fichier contient des **entrypoints**. Un entrypoint fait référence à un fichier .js. Le fichier .js charge dans son code un fichier .css tel qu'on l'a vu dans **app.js**.
 
@@ -10060,8 +10079,7 @@ class AccueilController extends AbstractController
 
 ```
 
-Le fonctionnement est bien simple: on crée une structure dans le dossier **/assets** contenant nos assets (.js, .css, images, etc...) et
-on peut les utiliser dans les twig.
+Le fonctionnement est bien simple: on crée une structure dans le dossier **/assets** contenant nos assets (.js, .css, images, etc...) et on peut les utiliser dans les twig.
 
 Exemple (fichier twig **templates/accueil/index.html.twig**):
 
@@ -10302,7 +10320,363 @@ return [
 
 
 <br>
-.........................................................
+
+
+
+# 29. Webpack pour gérer les assets
+
+Symfony possède l'extension **Webpack Encore**, qui facilite énormément l'installation et utilisation de Webpack.
+
+Webpack a la fonctionnalité de AssetMapper mais permet en plus de compiler, minimiser et découper en morceaux notre code pour optimiser le chargement dans l'application.
+On paie un prix élévé car on doit installer Node et gérer les dépéndances pendant toute la vie du projet. AssetMapper par contre n'a pas besoin de Node.
+
+On va procéder à installer Webpack dans un projet vide  (ou dasn votre propre projet) et réaliser
+quelques exemples. Créez un projet **ExemplesWebpack** et un controller **MainController** (le projet complet est disponible dans le repo).
+
+En plus de configurer webpack pour gérer nos .js et .css, on va faire le necéssaire pour installer **bootstrap** et **axios** dans notre projet et ne plus utiliser des CDNs.
+
+<br>
+
+## 29.1. Installation de Webpack Encore et de Node
+
+
+0. **Installez Node.js**
+
+https://nodejs.org/en/download/
+
+<br>
+
+1.  **Installez le module Webpack Encore dans votre projet**
+
+```console
+symfony composer req symfony/webpack-encore-bundle
+```
+
+**Cette installation ('recipe'):**
+
+- Crée le dossier **/assets** (à ne pas confondre avec un possible dossier **/public/assets** qu'on aurait pu créer avant d'utiliser Webpack Encore
+
+- Crée le fichier **/assets/app.js** qui, dans un prémier moment,  centralisera la charge de tout le code **js** et **css** (voir **entryPoints** plus tard, car on peut avoir plusieurs fichiers où on compile le code)
+
+- Crée un fichier **/webpack.config.js** qui contient la configuration du module
+
+1. **Installez le dépendances JS de Webpack Encore**. Lancez :
+
+```console
+npm install 
+```
+
+```console
+yarn install
+```
+
+Cette ligne crée le dossier **node_modules** contenant les dépendances (du code .js) dont Encore a besoin. Le dossier est rajouté ./gitignore
+
+
+<br>
+
+## 29.2. Configurer Webpack Encore 
+
+<br>
+
+
+Dans cette section on configure webpack et on lui indique quels sont les fichiers de script qu'on va utiliser dans notre app.
+
+<br>
+
+Ouvrez le fichier **/webpack.config.js** pour configurer Encore. Vous
+pouvez personnaliser Encore selon vos besoins :
+
+.**setOutputPath** : emplacement des fichiers **compilés**
+
+.**setPublicPath** : le chemin utilisé par le serveur (ex: dans le code
+des vues) pour accéder l'OutputPath qu'on vient de mentionner
+
+**Note**:  uniquement sur le serveur d'Interface 3 on doit changer 
+```
+.setPublicPath('/build')  
+```
+vers: 
+```
+.setPublicPath('/project1/public/build')  // au lieu de .setPublicPath('build') à cause du ALIAS d'APACHE (uniquement serveur Interface3)
+```
+
+.**addEntry** **('app','./assets/app.js')** : on aura un
+**entry** pour **chaque fichier .js qui regroupe un ensemble de code**. Ici on a crée un entry portant le nom "app" qui pointe vers un fichier
+app.js. On peut avoir d'autres Entries (d'autres fichiers) dont le code sera rajouté au code final.
+
+Vous pouvez carrement rajouter de fichiers .js et donner un nom pour l'entry:
+```js
+    .addEntry('exemple1AjaxFormData','./assets/exemple1AjaxFormData.js')
+    .addEntry('autreJs','./assets/autreJs.js')
+```
+Puis vous **copiez votre fichier .js dans l'emplacement que vous avez indiquez dans l'Entry**. Cette procédure va indiquer à Webpack quels seront les fichiers .js qu'on va avoir dans notre app.
+
+Continuez pour savoir comment les utiliser dans vos vues.
+
+
+**Note**: Ouvrez le fichier **app.js** et observez qu'on importe le **.css**! (Concrètement on importe le fichier **/assets/css/app.css**)
+
+<br>
+
+## 29.3. Lancer Webpack 
+
+<br>
+
+Maintenant on doit compiler les fichiers.
+Vous pouvez utilisez **npm** ou **yarn**. Ce n'est pas une bonne idée de melanger les deux.
+
+Pour compiler les assets une seule fois, lancez
+
+```console
+npm run dev
+```
+**ou**
+
+```console
+yarn encore dev
+```
+
+
+Si on ne veut pas récompiler à chaque changement dans le .js ou le .css, on lancera :
+
+```console
+npm run watch
+```
+
+**ou**
+
+```console
+yarn encore dev --watch
+```
+
+npm (ou yarn) lancera un **serveur* qui detectera (presque toujours :D) les changements dans les fichiers .js et .css et recompilera par lui-même. Attention car il ne detectera pas vos erreurs dans js (observez bien la console du navigateur pendant l'execution de votre code)
+
+Si vous obtenez des erreurs de compilation, il se peut que vous deviez arreter et ré-demarrer le serveur (CTRL-c)
+
+Finalement, et juste quand l'app est finie et on veut créer la version de production, on lance :
+
+```console
+npm run build
+```
+
+ou 
+
+```console
+yarn encore production
+```
+
+Webpack Encore compilera le code JS et CSS final dans le dossier **public/build**. Le dossier contiendra un nouveau fichier **app.js** et un **app.css** qui rassembleront tout le contenu JS et CSS (ainsi que les fichiers **manifest.json**, **entrypoints.json**, **runtime.js**) **sauf si on a crée plusieurs entries. Dans ce cas on aura plusieurs fichiers**
+
+<br>
+
+## 29.4. Importer les scripts dans les vues
+
+<br>
+
+Dans cette section on voit comment importer le code js dans nos vues, c'est très simple.
+
+Pour faciliter l'utilisation de Webpack dans les templates on a deux fonctions: 
+
+{{ encore_entry_link_tags ('app') }}
+{{ encore_entry_script_tags ('app') }}
+
+Ce sont les **Helpers** Vous pouvez inclure ces appels dans vos blocs **javascripts** et **css** dans les vues.
+
+Pour inclure le **css** qui apparait dans votre entry: 
+
+```twig
+{{ encore_entry_link_tags ('app') }}
+```
+
+Pour inclure le **js** qui apparait dans votre entry :
+```twig
+{{ encore_entry_script_tags ('app') }}
+```
+
+<br>
+
+**Note**: Le js et css qui apparait dans votre entry est compilé et existe en **build** de toute façon. 
+Vous avez le choix de l'inclure dans votre vue ou pas, mais le code compilé existe toujours. 
+
+<br>
+
+La reference 'app' est configurée dans le fichier **entrypoints.json**,
+qui a été crée à partir de votre fichier **webpack.config.js**. Vous pouvez utiliser un autre nom et, Comme nous l'avons déjà dit, avoir plusieurs **entries** ('app', 'autre', 'main'...)
+
+
+Par exemple :
+```twig
+{{ encore_entry_script_tags ('exemple1AjaxFormData') }}
+{{ encore_entry_script_tags ('autreJS') }}
+```
+
+
+<br>
+
+
+## 29.5. Exemple d'utilisation de Webpack avec un fichier pour une vue specifique
+
+<br>
+
+Voici un exemple de code où on utilise Webpack pour inclure du .js et .css dans une vue concrete. On crée du .css et .js qu'on va inclure dans une vue concrete.
+
+<br>
+
+**0**. Lancez **npm install** ou **yarn install**  pour installer les dependances d'Encore
+
+
+**1**. Créez votre fichier **/assets/styles/vue1.css** contenant votre code .css
+
+```css
+h1 {
+    color: green;
+}
+```
+
+**2**. Créez votre fichier **/assets/vue1.js** contenant **votre code js et l'importation du css** précédant
+
+```js
+import './styles/vue1.css'; // on importe le .css depuis le fichier .js!
+
+// votre code js se trouve ici
+alert ("vue1 js!"); 
+.
+.
+.
+```
+
+<br>
+
+**3**. Rajoutez l'entry dans **webpack.config.js**
+
+L'entry pointera vers un fichier .js que vous allez inclure dans *assets*.
+Observez qu'il n'y a pas une entry pour .css car on a importé le .css depuis le fichier .js de l'entry (ici *vue1.js*)
+
+```js
+.
+.
+
+    /*
+     * ENTRY CONFIG
+     *
+     * Each entry will result in one JavaScript file (e.g. app.js)
+     * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
+     */
+    .addEntry('app', './assets/app.js')
+    .addEntry('vue1', './assets/vue1.js') // notre nouvelle entry
+.
+.   
+``` 
+
+
+**4**. Créez un controller. Rajoutez une **action** *vue1Webpack*.
+La vue associée aura son propre css et js.
+
+
+```php
+#[Route('vue1/webpack')]
+public function vue1Webpack (){
+    return $this->render ('/exemples_routing/vue1_webpack.html.twig');
+}
+```
+
+**5**. Faites la **vue** *vue1_webpack.html.twig*, qui utilisera l'entry **vue1** (à définir plus tard dans *webpack.config.js*)
+
+```twig
+{% extends "base.html.twig" %}
+
+{% block body %}
+	test webpack
+	<h1>test css webpack</h1>
+	{% block stylesheets %}
+		{{ encore_entry_link_tags('vue1') }}
+	{% endblock %}
+
+	{% block javascripts %}
+		{{ encore_entry_script_tags('vue1') }}
+	{% endblock %}
+
+{% endblock %}
+```
+Peu importe le nom de vos entries, mais il doit être cohérent avec la config qu'on va créer dans *webpack.config.js*
+
+Compilez votre code en utilisant encore :
+
+```console
+npm run watch
+```
+ou 
+
+```
+yarn encore dev --watch
+```
+
+**watch** indique que encore compilera à chaque changement du code.
+
+Si vous voulez juste compiler une fois, utilisez
+
+```
+yarn encore dev 
+```
+
+ou 
+
+```console
+npm run dev
+```
+
+Si vous voulez compiler pour production, utilisez 
+
+```
+yarn encore production
+```
+ou 
+
+```console
+npm run build
+```
+
+<br>
+
+
+
+## 29.6. Encore et Bootstrap
+
+<br>
+
+Ici on explique comment installer bootstrap dans notre projet en utilisant Webpack Encore.
+
+**Installez bootstrap :**
+
+```console
+npm add bootstrap 
+```
+
+**ou**
+
+```console
+yarn add bootstrap 
+```
+
+Les librairies de Bootstrap seront copiées dans le dossier **node_modules**.
+
+Bootstrap utilise JQuery et la variable JQuery (raccourcie $). Quand on inclut Bootstrap avec une balise SCRIPT, le code attend que jQuery soit une variable globale. On change le **app.js** pour importer **bootstrap**, qui se trouve maintenant dans node_modules :
+
+
+```js
+// app.js
+import './styles/app.css';
+// rajouter
+// jquery
+const $ = require ('jquery');
+window.jQuery = $;
+window.$ = $;
+// importer bootstrap
+import 'bootstrap';
+```
+
+
 
 Bootstrap a besoin de  **popper.js** (pop-up):
 
@@ -10337,170 +10711,6 @@ npm install font-awesome
 ```
 
 <br>
-
-
-## 29.2. Création d'un serveur virtuel (virtual host) pour un projet en Windows
-
-**Pour créer et utiliser un serveur virtual suivez ces pas** :
-
-**1**.  Activez d'abord la réécriture de l'URL dans la configuration
-    d'Apache ainsi que la lecture des serveurs virtuels dans
-    httpd-vhosts. Juste ouvrez le fichier
-    **c:/xampp/apache/conf/httpd.conf** et effacez les commentaires
-    de ces deux lignes (si par hasard elles sont commentées)
-
-```apache
-LoadModule rewrite_module modules/mod_rewrite.so
-Include conf/extra/httpd-vhosts.conf
-````
-
-**2**.  Modifiez (ou créez) le fichier **c:xampp\apache\conf\extra\vhosts.conf**:
-(changez le chemin et le nom du projet selon vos besoins)
-
-```apache
-<VirtualHost *:80>
-
-ServerName projet1Symfony.localhost
-DocumentRoot "C:/xampp/htdocs/Symfony5/projet1Symfony/public"
-
-<Directory "C:/xampp/htdocs/Symfony5/projet1Symfony/public">
-    AllowOverride All
-    Order Allow,Deny
-    Allow from All
-</Directory>
-
-<Directory "C:/xampp/htdocs/Symfony5/projet1Symfony">
-    Options FollowSymlinks
-</Directory>
-
-</VirtualHost>
-```
-
-Pour chaque nouveau projet vous devez rajouter la première section en
-modifiant le ServerName, DocumentRoot et Directory.
-
-Pour pouvoir continuer à utiliser le serveur **localhost** normalement vous devez rajouter sa **configuration** (**une seule fois, pas pour chaque projet!**):
-
-```apache
-<VirtualHost *:80>
-    ServerName localhost
-    DocumentRoot "C:/xampp/htdocs"
-    <Directory "C:/xampp/htdocs">
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
-```
-
-**3**.  Installez **l'apache-pack** qui créera les règles d'écriture d'url
-    pour le projet (Apache en aura besoin). Dans le dossier du projet,
-    tapez :
-
-
-        symfony composer req symfony/apache-pack
-
-(Répondez "y" pour accepter l'installation)
-
-**4**.  Rajoutez, dans le fichier **hosts**
-    
-        c:/Windows/System32/drivers/etc/hosts
-
-la ligne suivante:
-
-        127.0.0.1 projet1Symfony.localhost
-
-(Vous devez démarrer notepad comme **administrateur**, si vous utilisez Notepad++ il vous demandera de le faire automatiquement)
-
-**5**.  Redémarrez le serveur Apache et allez sur le site :
-
-http://projet1symfony.localhost/
-
-Une page de bienvenue devrait s'afficher, l'index de votre projet
-
-### Exercice : création d'un projet contenant l'application skeleton
-
-Créez un deuxième projet projet2Symfony selon la procédure précédente
-
-<br>
-
-5.3. Création d'un serveur virtuel (virtual host) en OSX
-
-1.  Activez la lecture de httpd-vhosts dans le fichier httpd.conf:
-    ouvrez **xampp** et cliquez sur le bouton Config pour ouvrir ce
-    fichier de configuration d'Apache.
-
-    Note: Le fichier se trouve dans Applications/xampp/xamppfiles/etc
-
-    Une fois le fichier ouvert, effacez les commentaires de ces deux
-    lignes (si elles sont commentées)
-
-Include conf/extra/httpd-vhosts.conf
-
-Activez aussi la réécriture de l'URL dans la configuration d'Apache e
-
-LoadModule rewrite_module modules/mod_rewrite.so
-
-2.  Modifiez (ou créez) le fichier
-    **/Applications/XAMPP/xamppfiles/etc/extra/httpd-vhosts.conf** en
-    rajoutant :
-
-```Apache
-<VirtualHost *:80>
-
-ServerName projet1Symfony.localhost
-
-DocumentRoot "/Applications/XAMPP/xamppfiles/htdocs/Symfony5/projet1Symfony/public"
-
-<Directory "/Applications/XAMPP/xamppfiles/htdocs/Symfony5/projet1Symfony/public">
-    AllowOverride All
-    Order Allow,Deny
-    Allow from All
-</Directory>
-
-<Directory "/Applications/XAMPP/xamppfiles/htdocs/Symfony5/projet1Symfony/Symfony">
-    Options FollowSymlinks
-</Directory>
-
-</VirtualHost>
-
-```
-
-Pour chaque nouveau projet vous devez rajouter la première section en
-modifiant le ServerName, DocumentRoot et Directory.
-
-Pour pouvoir continuer à utiliser le serveur **localhost** normalement (pas seulement avec de virtual hosts pour Symfony!)
-vous devez rajouter cette **configuration** :
-
-```apache
-<VirtualHost *:80>
-    ServerName localhost
-    DocumentRoot "/Applications/XAMPP/xamppfiles/htdocs"
-    <Directory "/Applications/XAMPP/xamppfiles/htdocs">
-    AllowOverride All
-    Require all granted
-</Directory>
-</VirtualHost>
-```
-
-1.  Dans le dossier de votre projet, installez **l'apache-pack** qui créera les règles d'écriture d'url pour le projet (Apache en aura besoin). Dans le dossier du projet, tapez :
-
-        php composer.phar require symfony/apache-pack
-
-(Répondez "y" pour accepter l'installation)
-
-4.  Rajoutez dans cette ligne dans le fichier **hosts** :
-
-        127.0.0.1 projet1Symfony.localhost localhost
-
-Pour éditer le fichier hosts :
-
-    1.  Ouvrez la console
-    2.  Tapez cd /
-    3.  Tapez sudo nano etc/hosts
-    4.  Tapez votre mot de passe
-    5.  Rajoutez la ligne indiquée
-    6.  Enregistrez le fichier avec CONTROL-O et puis Enter, sortez du
-        logiciel avec CONTROL-X et puis Enter
 
 
 
@@ -10666,7 +10876,7 @@ services:
 
 
 
-# 31. (EN COURS, A NE PAS SUIVRE) Deserialization (transformation de JSON, CSV... en objets)
+# 32. (EN COURS, A NE PAS SUIVRE) Deserialization (transformation de JSON, CSV... en objets)
 
 Lisez le chapitre consacré à la Serialisation. On va réaliser l'opération inverse: transformer du JSON en objets.
 
@@ -11008,171 +11218,13 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 
 
-```php
 
-```
 
 
 
 
 
-
-
-
-
-# END 
-
-
-A effacer :
-
---- 
-
-Pour JS :
-
-- Créer le fichier assets\get_nice_message.js
-
-```js
-module.exports = function (exclamationCount){
-    return "j'aime bien l'omelette". "!" . repeat (exclamationCount);
-}
-```
-
-(Node)
-
-ou 
-```js
-export default function (exclamationCount){
-    return "j'aime bien l'omelette". "!" . repeat (exclamationCount);
-}
-```` 
-
-(ECMA)
-
-- Dans app.js, importez le module :
-
-```js
-const getNiceMessage = require ('./get_nice_message');
-```
-(Node)
-
-ou 
-```js
-import getNiceMessage from './get_nice_message'
-```
-
-(ECMA)
-
-Changez aussi require pour import ()
-
-- Utilisez la fonction dans app.js pour la tester
-
-// any CSS you import will output into a single css file (app.css in this case)
-
-import '../css/app.css';
-const getNiceMessage = require ('./get_nice_message');
-
-// Need jQuery? Install it with "yarn add jquery", then uncomment to import it.
-// import $ from 'jquery';
-console.log(getNiceMessage(5));
-////////////////////////////////////
-// Installer de librairies avec YARN
-////////////////////////////////////
-jQuery
-------
-
-yarn add jquery --dev
-
-et puis (app.js)
-
-import $ from 'jquery'; 
-
-(pas besoin de "./" car de cette manière Webpack le cherchera dans node_modules (dossier)
-
-Bootstrap
-
----------
-
-Quand on inclut Bootstrap avec une balise SCRIPT, le code attend que jQuery soit une variable globale.
-
-Pour inclure bootstrap avec Webpack on doit utiliser yarn :
-
-yarn add bootstrap --dev
-
-On change le app.js :
-
-import $ from 'jquery';
-
-import 'bootstrap';
-
-On doit arranger la dépendance de popper.js :
-
-npm install --save popper.js
-
-(yarn add popper --dev)
-
-Importer le bootstrap.css. La tilde est necessaire pour referencer un node module à l'interieur d'un fichier css.
-
-@import '~bootstrap/dist/css/bootstrap.css';
-
-Pour les fonts :
-
-yarn add font-awesome --dev
-
-
-
-# 4. Installation de packages dans un projet Symfony Flex
-
-**Symfony Flex** est un plug-in pour **Composer** installé **par défaut lors de
-la création d'une nouvelle application (projet) Symfony** et automatisant les
-tâches les plus courantes des applications Symfony. Flex modifie le
-comportement de base de *require*, *update* et *remove.* Beaucoup de
-packages de Symfony contiennent une *recipe* (« recette ») **: un
-ensemble d'instructions pour installer et activer le package dans un
-projet Symfony**. Flex peut aussi être rajouté dans un projet Symfony
-d'une version précédente (qui n'aie pas Flex). Plus de
-documentation ici :
-
-[https://symfony.com/doc/current/setup.html#creating-symfony-applications](https://symfony.com/doc/current/setup.html%23creating-symfony-applications)
-
-<br>
-
-
-# (En cours, cette doc. appartient à Symfony 4) Traduction des messages de succès/erreur
-
-1.  Changer la variable **locale** de **en** à **fr** dans
-    **config/services.yaml**
-
-2.  Créez un fichier contenant les traductions des messages selon le
-    **locale** (voir **translations/security.fr.xlf** dans
-    **projetLoginPass**)
-
-Maintenant, à chaque fois qu'un service de Symfony renvoie un message
-il lira le fichier de traductions. Nous avons qu'à rajouter la
-traduction de chaque message en francáis.
->
-Le service de traduction mérite d'une section à part qu'on ne
-traitera pas dans ce tuto.
->
-<https://symfony.com/doc/current/translation.html(voir la section
-**Basic Translation**).
-
-
-<br>
-
-## Annexe (en cours, brouillon): les pas pour la création d'un projet
-
-<br>
-
-
-### Analyse
-
-- Définir les fonctionnalités (interface et/ou UML use case)
-- Créer diagramme de classes
-- Associer controllers et fonctionnalités / interface
-- Créer un repo dans Github
-
-
-### Implementation
+## Annexe 1: Implementation
 
 ### 1. Modèle
 
@@ -11196,8 +11248,177 @@ traitera pas dans ce tuto.
 
 
 
+## Annexe 2. Création d'un serveur virtuel (virtual host) pour un projet en Windows
+
+**Pour créer et utiliser un serveur virtual suivez ces pas** :
+
+**1**.  Activez d'abord la réécriture de l'URL dans la configuration
+    d'Apache ainsi que la lecture des serveurs virtuels dans
+    httpd-vhosts. Juste ouvrez le fichier
+    **c:/xampp/apache/conf/httpd.conf** et effacez les commentaires
+    de ces deux lignes (si par hasard elles sont commentées)
+
+```apache
+LoadModule rewrite_module modules/mod_rewrite.so
+Include conf/extra/httpd-vhosts.conf
+````
+
+**2**.  Modifiez (ou créez) le fichier **c:xampp\apache\conf\extra\vhosts.conf**:
+(changez le chemin et le nom du projet selon vos besoins)
+
+```apache
+<VirtualHost *:80>
+
+ServerName projet1Symfony.localhost
+DocumentRoot "C:/xampp/htdocs/Symfony5/projet1Symfony/public"
+
+<Directory "C:/xampp/htdocs/Symfony5/projet1Symfony/public">
+    AllowOverride All
+    Order Allow,Deny
+    Allow from All
+</Directory>
+
+<Directory "C:/xampp/htdocs/Symfony5/projet1Symfony">
+    Options FollowSymlinks
+</Directory>
+
+</VirtualHost>
+```
+
+Pour chaque nouveau projet vous devez rajouter la première section en
+modifiant le ServerName, DocumentRoot et Directory.
+
+Pour pouvoir continuer à utiliser le serveur **localhost** normalement vous devez rajouter sa **configuration** (**une seule fois, pas pour chaque projet!**):
+
+```apache
+<VirtualHost *:80>
+    ServerName localhost
+    DocumentRoot "C:/xampp/htdocs"
+    <Directory "C:/xampp/htdocs">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
+
+**3**.  Installez **l'apache-pack** qui créera les règles d'écriture d'url
+    pour le projet (Apache en aura besoin). Dans le dossier du projet,
+    tapez :
+
+
+        symfony composer req symfony/apache-pack
+
+(Répondez "y" pour accepter l'installation)
+
+**4**.  Rajoutez, dans le fichier **hosts**
+    
+        c:/Windows/System32/drivers/etc/hosts
+
+la ligne suivante:
+
+        127.0.0.1 projet1Symfony.localhost
+
+(Vous devez démarrer notepad comme **administrateur**, si vous utilisez Notepad++ il vous demandera de le faire automatiquement)
+
+**5**.  Redémarrez le serveur Apache et allez sur le site :
+
+http://projet1symfony.localhost/
+
+Une page de bienvenue devrait s'afficher, l'index de votre projet
+
+### Exercice : création d'un projet contenant l'application skeleton
+
+Créez un deuxième projet projet2Symfony selon la procédure précédente
+
+<br>
+
+5.3. Création d'un serveur virtuel (virtual host) en OSX
+
+1.  Activez la lecture de httpd-vhosts dans le fichier httpd.conf:
+    ouvrez **xampp** et cliquez sur le bouton Config pour ouvrir ce
+    fichier de configuration d'Apache.
+
+    Note: Le fichier se trouve dans Applications/xampp/xamppfiles/etc
+
+    Une fois le fichier ouvert, effacez les commentaires de ces deux
+    lignes (si elles sont commentées)
+
+Include conf/extra/httpd-vhosts.conf
+
+Activez aussi la réécriture de l'URL dans la configuration d'Apache e
+
+LoadModule rewrite_module modules/mod_rewrite.so
+
+2.  Modifiez (ou créez) le fichier
+    **/Applications/XAMPP/xamppfiles/etc/extra/httpd-vhosts.conf** en
+    rajoutant :
+
+```Apache
+<VirtualHost *:80>
+
+ServerName projet1Symfony.localhost
+
+DocumentRoot "/Applications/XAMPP/xamppfiles/htdocs/Symfony5/projet1Symfony/public"
+
+<Directory "/Applications/XAMPP/xamppfiles/htdocs/Symfony5/projet1Symfony/public">
+    AllowOverride All
+    Order Allow,Deny
+    Allow from All
+</Directory>
+
+<Directory "/Applications/XAMPP/xamppfiles/htdocs/Symfony5/projet1Symfony/Symfony">
+    Options FollowSymlinks
+</Directory>
+
+</VirtualHost>
+
+```
+
+Pour chaque nouveau projet vous devez rajouter la première section en
+modifiant le ServerName, DocumentRoot et Directory.
+
+Pour pouvoir continuer à utiliser le serveur **localhost** normalement (pas seulement avec de virtual hosts pour Symfony!)
+vous devez rajouter cette **configuration** :
+
+```apache
+<VirtualHost *:80>
+    ServerName localhost
+    DocumentRoot "/Applications/XAMPP/xamppfiles/htdocs"
+    <Directory "/Applications/XAMPP/xamppfiles/htdocs">
+    AllowOverride All
+    Require all granted
+</Directory>
+</VirtualHost>
+```
+
+1.  Dans le dossier de votre projet, installez **l'apache-pack** qui créera les règles d'écriture d'url pour le projet (Apache en aura besoin). Dans le dossier du projet, tapez :
+
+        php composer.phar require symfony/apache-pack
+
+(Répondez "y" pour accepter l'installation)
+
+4.  Rajoutez dans cette ligne dans le fichier **hosts** :
+
+        127.0.0.1 projet1Symfony.localhost localhost
+
+Pour éditer le fichier hosts :
+
+    1.  Ouvrez la console
+    2.  Tapez cd /
+    3.  Tapez sudo nano etc/hosts
+    4.  Tapez votre mot de passe
+    5.  Rajoutez la ligne indiquée
+    6.  Enregistrez le fichier avec CONTROL-O et puis Enter, sortez du
+        logiciel avec CONTROL-X et puis Enter
+
+
+
+
+
 --- Rajouter App\Command
 --- Étudier Mercure
 NEW:
 --- Scheduler
+
+
 
