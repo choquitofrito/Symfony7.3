@@ -188,8 +188,7 @@
   - [Importation directe de librairies: bootstrap, jQuery, fontawesome, axios, ...](#importation-directe-de-librairies-bootstrap-jquery-fontawesome-axios-)
   - [Images](#images)
   - [Production](#production)
-  - [Exemple d'utilisation d'AssetMapper avec un fichier pour une vue specifique](#exemple-dutilisation-dassetmapper-avec-un-fichier-pour-une-vue-specifique)
-- [29. Webpack pour gérer les assets](#29-webpack-pour-gérer-les-assets)
+- [29. Gestion d'assets avec Webpack](#29-gestion-dassets-avec-webpack)
   - [29.1. Installation de Webpack Encore et de Node](#291-installation-de-webpack-encore-et-de-node)
   - [29.2. Configurer Webpack Encore](#292-configurer-webpack-encore)
   - [29.3. Lancer Webpack](#293-lancer-webpack)
@@ -10036,7 +10035,7 @@ Plusieurs fichiers seront crées:
 - **importmap.php** - Fichier de config contenant la liste de tous les scripts qu'on va utiliser dans notre application (app.js, panier.js etc...) ainsi que les scripts externes (ex: bootstrap, tailwind, etc...) 
 
 Le fichier **base.html.twig** sera modifié aussi automatiquement quand on installe AssetMapper, et contiendra le bloc **importmap**. On ne l'a pas utilisé consciemment pour le moment, ce qui ne provoque aucun erreur.
-Mais maintenant vous allez comprendre pourquoi le fond d'écran est bleu quand on fait extends de **base.html.twig**.
+Mais maintenant vous allez comprendre pourquoi, quand vous créez un nouveau projet, le fond d'écran est bleu quand si on fait un vue et on hérite (extends) de **base.html.twig**.
 
 ```twig
 {% block javascripts %}
@@ -10056,15 +10055,109 @@ charge l'entrypoint 'app' qui correspond à app.js... qui à son tour charge le 
 
 Ce fichier contient des **entrypoints**. Un entrypoint fait référence à un fichier .js. Le fichier .js charge dans son code un fichier .css tel qu'on l'a vu dans **app.js**.
 
-On va tester le fonctionnement. Créez l'action suivante:
+**Exemple:** vue qui utilise deux blocs de script propres
+
+On va créer maintenant une vue qui chargera deux blocs de script-css.
+On se trouvera dans cette situation si dans notre page on veut charger plusieurs scripts au même temps dans le même endroit de la page.
+
+Créez les fichiers, qui vont correspondre aux l'entrypoint **unBlock** et **autreBlock** dans **importmap.php** (on editera ce dernier plus tard)
+
+
+Fichier **/assets/unBlocScriptCSS.js**
+
+```js
+import "./styles/unBlocScriptCSS.css";
+
+alert("je suis un bloc js");
+console.log ("J'appartient à unBlocScriptCSS");
+```
+
+Fichier **/assets/styles/unBlocScriptCSS.css**
+
+```css
+body {
+    /* je change la typo en Italique */
+    font-style: italic;
+}
+```
+
+et puis ces deux fichiers qui vont correspondre à l'entrypoint **autreBlock** dans **importmap.php**
+
+Fichier **/assets/autreBlocScriptCSS.js**
+
+```js
+import "./styles/autreBlocScriptCSS.css";
+
+alert("je suis un autre bloc js");
+console.log ("J'appartient à autreBlocScriptCSS");
+```
+
+Fichier **/assets/styles/autreBlocScriptCSS.css**
+
+```css
+body {
+    color: rgb(135, 235, 165);
+}
+```
+
+Maintenant indiquez dans le fichier **importmap.php** que ces fichiers seron accésibles depuis notre application (en général):
 
 ```php
+.
+.
+.
+.
+return [
+    'app' => [
+        'path' => './assets/app.js',
+        'entrypoint' => true,
+    ],
+    'unBloc' => [
+        'path' => './assets/unBlocScriptCSS.js',
+        'entrypoint' => true,
+    ],
+    'autreBloc' => [
+        'path' => './assets/autreBlocScriptCSS.js',
+        'entrypoint' => true,
+    ],
+.
+.
+.
+.
+``` 
 
+
+On crée la vue maintenant **action1.html.twig** (observez le bloc importmap qui importe les deux scripts **unBloc** et **autreBloc** ):
+
+Ce block **importmap** est hérité de base.html.twig, mais on écrase son contenu avec le notre dans ce cas. 
+
+Fichier **/templates/accueil/action1.html.twig**
+
+```twig
+{% block title %}Hello AccueilController!{% endblock %}
+
+{% block body %}
+
+<p class="h1">Bonjour à tous depuis action1. Je vais avoir les deux scripts et css, app et autreBloc!</p>
+On aurait pu avoir aussi un seul script (app ou autreBloc)
+
+{% block javascripts %}
+    {% block importmap %}
+        {{ importmap(['unBloc','autreBloc']) }}
+    {% endblock %}
+{% endblock %}
+
+{% endblock %}
+```
+
+Pour finir, créez l'action **action1** comme ci-dessous:
+
+```php
 <?php
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use sSymfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -10075,18 +10168,20 @@ class AccueilController extends AbstractController
     {
         return $this->render('accueil/index.html.twig');
     }
-}
 
+    #[Route('/action1', name: 'action1')]
+    public function action1(): Response
+    {
+        return $this->render('accueil/action1.html.twig');
+    }
+}
 ```
 
-Le fonctionnement est bien simple: on crée une structure dans le dossier **/assets** contenant nos assets (.js, .css, images, etc...) et on peut les utiliser dans les twig.
-
-Exemple (fichier twig **templates/accueil/index.html.twig**):
 
 Lancez l'action et observez que le code de /assets/app.js est lancé et le fichier /assets/styles/app.css chargé.
 Il est lancé car index.html.twig hérite de **base.html.twig** qui contient ce code:
 
-```php
+```twig
 {% block javascripts %}
     {% block importmap %}{{ importmap('app') }}{% endblock %}
 {% endblock %}
@@ -10247,87 +10342,13 @@ Plus d'info ici: https://symfony.com/doc/current/frontend/asset_mapper.html#asse
 symfony console asset-map:compile
 ```
 
-## Exemple d'utilisation d'AssetMapper avec un fichier pour une vue specifique
-
 <br>
 
-Créez une action **action1** qui charge une vue **action1.html.twig**
-
-L'action:
-
-```php
-#[Route('/action1', name: 'action1')]
-public function action1(): Response
-{
-    return $this->render('accueil/action1.html.twig');
-}
-```
-
-La vue:
-
-```php
-
-{% block title %}Hello AccueilController!{% endblock %}
-
-{% block body %}
-
-<h1>Bonjour à tous depuis action1. Je vais avoir les deux scripts et css, app et autreBloc!</h1>
-On aurait pu avoir aussi un seul script (app ou autreBloc)
-
-{% block javascripts %}
-    {% block importmap %}{{ importmap(['app','autreBloc']) }}{% endblock %}
-{% endblock %}
-
-{% endblock %}
-```
-
-Créez les fichiers **/assets/autreBloc.js** et **/assets/styles/autreBloc.css**
-
-```js
-import "./styles/autreBloc.css";
-
-alert("je suis un autre bloc js");
-console.log ("autreBloc.js");
-```
-
-```css
-body {
-    color: rgb(135, 235, 165);
-}
-``` 
-
-On rajoute un **entrypoint** dans **importmap.php**
-
-```js
-.
-.
-.
-return [
-    'app' => [
-        'path' => './assets/app.js',
-        'entrypoint' => true,
-    ],
-    // nouvel entrypoing
-    'autreBloc' => [
-        'path' => './assets/autreBloc.js',
-        'entrypoint' => true,
-    ],
-.
-.
-.
-```
-
-
-
-<br>
-
-
-
-# 29. Webpack pour gérer les assets
+# 29. Gestion d'assets avec Webpack 
 
 Symfony possède l'extension **Webpack Encore**, qui facilite énormément l'installation et utilisation de Webpack.
 
-Webpack a la fonctionnalité de AssetMapper mais permet en plus de compiler, minimiser et découper en morceaux notre code pour optimiser le chargement dans l'application.
+**Webpack** a la fonctionnalité de **AssetMapper** mais permet en plus de compiler, minimiser et découper en morceaux notre code pour optimiser le chargement dans l'application.
 On paie un prix élévé car on doit installer Node et gérer les dépéndances pendant toute la vie du projet. AssetMapper par contre n'a pas besoin de Node.
 
 On va procéder à installer Webpack dans un projet vide  (ou dasn votre propre projet) et réaliser

@@ -16,8 +16,12 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
+    'unBloc' => [
+        'path' => './assets/unBlocScriptCSS.js',
+        'entrypoint' => true,
+    ],
     'autreBloc' => [
-        'path' => './assets/autreBloc.js',
+        'path' => './assets/autreBlocScriptCSS.js',
         'entrypoint' => true,
     ],
     '@hotwired/stimulus' => [
