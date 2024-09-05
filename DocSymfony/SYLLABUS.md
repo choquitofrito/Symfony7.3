@@ -3158,14 +3158,16 @@ symfony composer req symfony/maker-bundle --dev
 2.  **Adaptez les paramètres de la BD** dans **le fichier .env** (racine du projet) à votre serveur et nom de base de données
 
 ```console
-DATABASE_URL=mysql://db_user:db_password@127.0.0.1:3306/db_name
+DATABASE_URL="mysql://db_user:db_password@127.0.0.1:3306/db_name?serverVersion=10.11.2-MariaDB&charset=utf8mb4"
 ```
 Notre base de données portera le nom **bibliotheque**, alors on obtient. Par défaut, l'installation de XAMPP utilise **root** comme user et aucun password. La chaîne de connexion sera alors :
 
-
 ```console
-DATABASE_URL=mysql://root:@127.0.0.1:3306/bibliotheque
+DATABASE_URL=mysql://root:@127.0.0.1:3306/bibliotheque?serverVersion=10.11.2-MariaDB&charset=utf8mb4
 ```
+
+**ATTENTION: **La version de MariaDB (MySql) doit correspondre à celle de XAMPP. Pour la connaitre, allez dans la page d'accueil de phpmyadmin 
+
 
 3. Allumez le serveur de BD (MySQL dans notre cas) et **créez la BD**
 
