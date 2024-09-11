@@ -5980,7 +5980,7 @@ Cela nous permettra, quand on fera submit, **d'obtenir directement une entité d
 
 Nous allons faire un exemple, préparons le contexte :
 
-Créez d'abord un **nouveau projet** (ex : **ProjetFormulairesSymfony**) contenant un controller (ex : **FormulairesController**). Créez une entité *Aeroport* (*nom, code, dateMiseEnService, heureMiseEnService, description*). Rajoutez un hydrate et modifiez le constructeur. et créez la BD (ex: **formulairesbd**). Faites la migration. 
+Créez d'abord un **nouveau projet** (ex : **ProjetFormulairesSymfony**) contenant un controller (ex : **FormulairesController**). Créez une entité *Aeroport* (*nom, code, dateMiseEnService, heureMiseEnService, description*). Rajoutez un hydrate et modifiez le constructeur. Créez la BD (ex: **formulairesbd**). Faites la migration. 
 
 Importez **Faker** dans le projet. 
 

@@ -29,4 +29,7 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
+    'encore' => [
+        'version' => '0.0.30-beta',
+    ],
 ];
