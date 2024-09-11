@@ -5995,6 +5995,11 @@ Si vous n'avez pas encore installé le module de fixtures, tapez :
 symfony composer req --dev orm-fixtures
 ```
 
+Créez une fixture pour l'entité Aeroport
+
+```php 
+symfony console make:fixture
+```
 
 ```php
 <?php
@@ -6016,12 +6021,13 @@ class AeroportFixtures extends Fixture
         for ($i = 0; $i < 5; $i++) {
             // créez le hydrate et modifiez le construct dans l'entité!
             $aeroport = new Aeroport(
-                ['nom'=>$faker->city . " Airport",
-                'code'=>$faker->postcode,
-                'dateMiseEnService'=>$faker->dateTime,
-                'heureMiseEnService'=>$faker->dateTime,
-                'description'=>$faker->realText
-                ]);
+                ['nom' => $faker->city(),
+                'code'=> $faker->stateAbbr(),
+                'description' => $faker->text(),
+                'dateMiseEnService' => $faker->dateTime(),
+                // en utilisant l'hydrate, on envoie ce qu'on veut
+                ]
+            );
             
             $manager->persist($aeroport);
         }
