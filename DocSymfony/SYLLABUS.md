@@ -4586,11 +4586,8 @@ Nous n'avons plus besoin de la classe Exemplaire dans l'action principale et en 
 .
 .
 
-class ExemplesEncapsulationController extends AbstractController
-{
-    
     #[Route("/exemples/encapsulation/rajouter/livre/exemplaires/encapsulation")]
-    public function rajouterLivreExemplairesEncapsulation(ManagerRegistry $doctrine
+    public function rajouterLivreExemplairesEncapsulation(ManagerRegistry $doctrine)
     {
         $em = $doctrine->getManager();
         // on crée un livre
@@ -5616,28 +5613,37 @@ Le but est de simplifier les actions du controller qui, au lieu de devoir conten
 1.  **Créez la méthode du repository pour nous faciliter la tâche**
 
 ```php
-// DQL: obtenir les livres entre deux prix 
-public function livresEntreDeuxPrixDQL($pmin, $pmax)
+
+class LivreRepository extends ServiceEntityRepository
 {
-    $em = $this->getEntityManager();
-    // avec cette requête on obtient un array
-    $query = $em->createQuery('SELECT livre FROM App\Entity\Livre livre WHERE livre.prix >= :pmin AND ' .
-        'livre.prix <= :pmax');
-    $query->setParameter('pmin', $pmin);
-    $query->setParameter('pmax', $pmax);
-    $resultat = $query->getResult();
-    // cette méthode renvoie le résultat de la requête
-    return $resultat;
-}
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Livre::class);
+    }
+
+
+    // DQL: obtenir les livres entre deux prix 
+    public function livresEntreDeuxPrixDQL($pmin, $pmax)
+    {
+        $em = $this->doctrine->getEntityManager();
+        // avec cette requête on obtient un array
+        $query = $em->createQuery('SELECT livre FROM App\Entity\Livre livre WHERE livre.prix >= :pmin AND ' .
+            'livre.prix <= :pmax');
+        $query->setParameter('pmin', $pmin);
+        $query->setParameter('pmax', $pmax);
+        $resultat = $query->getResult();
+        // cette méthode renvoie le résultat de la requête
+        return $resultat;
+    }
+    ```
+    -   La méthode renvoie le résultat de la requête, pas de vue bien évidemment
+
+    -   **Pour obtenir l'Entity Manager dans les classes Repository** on
+        utilise
+
+        **$this->getEntityManager()**. Nous ne sommes pas dans le
+        controller !
 ```
--   La méthode renvoie le résultat de la requête, pas de vue bien évidemment
-
--   **Pour obtenir l'Entity Manager dans les classes Repository** on
-    utilise
-
-    **$this->getEntityManager()**. Nous ne sommes pas dans le
-    controller !
-
 
 
 2.  **Utilisez la méthode depuis le controller**
@@ -5646,12 +5652,12 @@ Observez qu'il n'y a pratiquement rien à faire dans l'action...
 
 ```php
     #[Route ("/exemples/dql/repositories/utilise/repo/livres/entre/deux/prix/{prixMin}/{prixMax}")]
-    function utiliseRepoLivresEntreDeuxPrix (Request $req, ManagerRegistry $doctrine){
+    function utiliseRepoLivresEntreDeuxPrix (Request $req){
     
         $prixMin = $req->get("prixMin");
         $prixMax = $req->get("prixMax");
         
-        $em = $doctrine->getManager();
+        $em = $doctrine->getEntityManager();
         $livresRepo = $em->getRepository(Livre::class);
         $livres = $livresRepo->livresEntreDeuxPrixDQL($prixMin, $prixMax);
         dump ($livres);
@@ -5812,20 +5818,35 @@ Notez que l'API nous permet de réaliser l'ensemble de la requête sans utiliser
 1.  **Créez une action dans le controller qu'utilise cette méthode** et envoyez la réponse au client (new Response) pour qu'il l'affiche
 
 ```php
-#[Route ("/exemples/query/builder/utilise/repo/livres/entre/deux/prix/{prixMin}/{prixMax}")]
-public function utiliseRepoLivresEntreDeuxPrix (Request $req, ManagerRegistry $doctrine){
+class LivreRepository extends ServiceEntityRepository
+{
+    public ManagerRegistry $doctrine;
 
-    $prixMin = $req->get("prixMin");
-    $prixMax = $req->get("prixMax");
-    
-    $em = $doctrine->getManager();
-    $livresRepo = $em->getRepository(Livre::class);
-    $livres = $livresRepo->livresEntreDeuxPrixDQL($prixMin, $prixMax);
-    dump ($livres);
-    die();
-    
-    // return new Response .....
-}    
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Livre::class);
+        // injecter $doctrine
+        $this->doctrine = $registry; 
+    }
+
+    #[Route ("/exemples/query/builder/utilise/repo/livres/entre/deux/prix/{prixMin}/{prixMax}")]
+    public function utiliseRepoLivresEntreDeuxPrix (Request $req){
+
+        $prixMin = $req->get("prixMin");
+        $prixMax = $req->get("prixMax");
+        
+        $em = $doctrine->getManager();
+        $livresRepo = $em->getRepository(Livre::class);
+        $livres = $livresRepo->livresEntreDeuxPrixDQL($prixMin, $prixMax);
+        dump ($livres);
+        die();
+        
+        // return new Response .....
+    }    
+.
+.
+.
+
 ```
 
 
@@ -6517,7 +6538,7 @@ class ExemplesFormulairesTraitementController extends AbstractController
         $formulaireLivre = $this->createForm(
             LivreType::class,
             $livre
-            // on n'a pas besoin d'action ni de méthode ici: si un form n'a pas d'action on fait appel à la même action
+            // on n'a pas besoin ni d'action ni de méthode ici: si un form n'a pas d'action on fait appel à la même action
             // ,
             // [
             //     'action' => $this->generateUrl("exemple_livre"),
@@ -6541,11 +6562,15 @@ class ExemplesFormulairesTraitementController extends AbstractController
 
             // Rendu d'une vue où on affiche les données
             // Normalement on fera CRUD ici, ou une autre opération...
-
             return $this->render(
                 '/exemples_formulaires_traitement/traitement_formulaire_livre.html.twig',
                 ['livre' => $livre]
             );
+
+            // on aurait pu, au lieu d'afficher une vue, ré-diriger vers une autre action.
+            // Le choix dépend des besoins
+            // return $this->redirectToRoute("name_autre_action", { param1: $val1, param2: $val2 })
+
         }
         // si non, on doit juste faire le rendu du formulaire
         else {
@@ -6913,7 +6938,7 @@ La solution est **d'utiliser le type EntityType**, qui nous permettra **d'envoye
 
 Créez une nouvelle entité Genre (contenant **nom** et **description**) et **une association d'un a plusieurs avec Livre** (on va considérer qu'un livre à juste un genre). 
 
-**Attention: Le côté 1 est considéré comme "owner side", "côté proprietaire". C'est important à savoir pour certains actions!**
+**Attention: Le côté 1 est considéré comme "owner side", "côté proprietaire"
 
 **Ici on veut pouvoir envoyer une entité Genre pour pouvoir l'incruster dans l'entité Livre.**
 
@@ -8136,6 +8161,9 @@ class FormRechercheLivresFiltresAjaxController extends AbstractController
             // Puis on renvoie le résultat JSON
             // return new Response ($response);
 
+            // Note: si on n'utilise pas AJAX, la bonne pratique est de ré-diriger
+            // avec $this->redirectToRoute au lieu de faire $this->render d'une autre view 
+
             // MAIS dans ce cas on a besoin aussi de l'auteur, alors on doit construire nous mêmes l'array ou définir
             // un serialiser personnalisé. Ici on va le faire à la main (construire nous mêmes l'array)
 
@@ -8963,7 +8991,7 @@ On va réaliser une configuration de base de la sécurité pour pouvoir créer u
 
 3.  Configurer la BD dans **.env**, créer le **schéma** de la BD, créer et lancer une **migration**
 
-4.  **Encoder des utilisateurs et de passwords dans la BD** (optionnel fixtures)
+4.  **Encoder des utilisateurs et de passwords dans la BD** (fixtures)
 
 5.  **Vérifier** le bon fonctionnement en tapant un couple login/pass valable
 --
@@ -9146,18 +9174,14 @@ L'assistant aura modifié aussi le fichier **security.yaml** (dans
 **3**. Configurer la BD dans **.env** (**projetloginpass**), créer le
     **schéma** de la BD, créer et lancer une **migration**
 
-```console
-symfony console doctrine:database:create
-symfony console make:migration
-symfony console doctrine:migrations:migrate
-```
+Créez un fichier migration.bat si vous ne l'avez pas encore!!!
 
 
 **4**. **Générer le système d'authentification** 
 
 
 ```console
-make:security:form-login
+symfony console make:security:form-login
 ```
 - Nom pour le controller (SecurityController)
 - Générer la route pour le logout
