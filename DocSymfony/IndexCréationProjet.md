@@ -5,7 +5,7 @@
 
 ## 2. Création d'un repo sur GitHub
 ## 3. Création d'un projet Symfony en local (et push !)
-## 4. Création du système d'authentification
+## 4. Création du système d'authentification (syllabus!)
 - Création de la classe User
 - Création du formulaire de login
 - Création d'un fixture pour la classe User
