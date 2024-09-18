@@ -180,6 +180,7 @@
     - [26.2.1. Dans security.yaml](#2621-dans-securityyaml)
     - [26.2.2. Dans le controller](#2622-dans-le-controller)
     - [26.2.3. Restriction d'accès dans la vue](#2623-restriction-daccès-dans-la-vue)
+- [26.3. Exemple de barre de navigation limitée par rôle](#263-exemple-de-barre-de-navigation-limitée-par-rôle)
 - [27. Pagination (sans AJAX)](#27-pagination-sans-ajax)
   - [27.1. Installation et exemple pratique](#271-installation-et-exemple-pratique)
   - [27.2. Filtres et pagination (sans Ajax)](#272-filtres-et-pagination-sans-ajax)
@@ -9875,6 +9876,114 @@ La vie est belle
 ```
 
 
+# 26.3. Exemple de barre de navigation limitée par rôle
+
+Dans cette section on implemente une barre de navigation dont les liens ne sont pas accésibles par tous les utilisateurs. Il y aura trois types de liens:
+- accésibles sans connexion
+- accésibles par un utilisateur lambda (ROLE_USER)
+- accésibles uniquement par les ROLE_ADMIN (ou autre de notre choix)
+
+La nav se trouve dans un fichier **nav.html.twig** dans un dossier **includes** qu'on créera dans **templates**
+
+
+
+**templates/includes/nav.html.twig**
+
+```twig
+{# navigation, pour toutes les pages  #}
+<nav>
+	{# liens sans connexion  #}
+	<a href="">Option 1 publique</a>
+	<a href="">Option 2 publique</a>
+
+	{# liens pour l'admin  #}
+	{% if is_granted ('ROLE_ADMIN') %}
+		<a href="">Option 3 admin</a>
+		<a href="">Option 4 admin</a>
+	{% endif %}
+
+	{# liens pour les users connectés,
+				peu importe le role #}
+	{% if is_granted ('ROLE_USER') %}
+		<a href="">Option 5 user</a>
+		<a href="">Option 6 user</a>
+	{% endif %}
+
+    {# vérifiez que l'objet user existe avant d'accéder à ses propriétés! %}
+	{% if app.user %}
+		Connecté:
+		{{ app.user.email }}
+		{# si connecté, on afficher le lien de logout #}
+		<a href="{{ path ('app_logout') }}">Logout</a>
+	{% else %}
+		{# si pas connecté, on afficher le lien de login #}
+		<a href="{{ path ('app_login') }}">Login</a>
+	{% endif %}
+</nav>
+```
+
+Utilisez **include** pour "incruster" ce fichier dans **base.html.twig**:
+
+```twig
+.
+.
+<body>
+    {% include '/includes/nav.html.twig' %}
+    {% block body %}{% endblock %}
+</body>
+.
+.
+```
+
+Dans **services.yaml** on configure les routes. Dans ce cas on va toujours sur la page d'accueil, peu importe si on est connecté ou pas. La seule différence entre les trois cas de figure sera l'affichage des liens dans la nav, qui se fait en fonction des rôles (voir code de la vue plus haut)
+
+```yaml
+form_login:
+    login_path: app_login
+    check_path: app_login
+    enable_csrf: true
+    default_target_path: accueil  # name!!!!
+logout:
+    path: app_logout
+    # where to redirect after logout
+    target: accueil
+```
+
+Voici notre controller pour l'accueil:
+
+**src/Controller/AccueilController**
+
+```php
+<?php
+
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+class AccueilController extends AbstractController
+{
+    #[Route('/', name: 'accueil')]
+    public function index(): Response
+    {
+        return $this->render('accueil/index.html.twig');
+    }
+}
+```
+
+et la vue **index.html.twig**
+
+```twig
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AccueilController!{% endblock %}
+
+{% block body %}
+Bienvenue au site
+
+{% endblock %}
+```
 
 
 # 27. Pagination (sans AJAX)
