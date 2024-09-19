@@ -9187,38 +9187,43 @@ symfony console make:security:form-login
 - Nom pour le controller (SecurityController)
 - Générer la route pour le logout
 - Pas générer les unit tests
-  
 
-**5.** **Genérer un controller pour le Login**. Ce controller est censé uniquement d'afficher le formulaire de login, pas de le traiter.
-
-```console
-php bin/console make:controller Login
-```
-
-Éditez le controller:
+Symfony genère le controller SecurityController.   
 
 ```php
+<?php
 
-// ...
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-  class LoginController extends AbstractController
-  {
-      #[Route('/login', name: 'app_login')]
-   public function index(AuthenticationUtils $authenticationUtils): Response
-      {
-        // obtenir l'erreur qui peut se produire pendant le login 
-        // (ex: invalid credentials)
+class SecurityController extends AbstractController
+{
+    #[Route(path: '/login', name: 'app_login')]
+    public function login(AuthenticationUtils $authenticationUtils): Response
+    {
+        // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
-        // obtenir le nom du dernier user qui s'est connecté
+
+        // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-          return $this->render('login/index.html.twig', [
+        return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
-            'error'         => $error,
-          ]);
-      }
-  }
+            'error' => $error,
+        ]);
+    }
+
+    #[Route(path: '/logout', name: 'app_logout')]
+    public function logout(): void
+    {
+        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+}
+
 ```
 
 Observez le template crée dans le dossier /templates/security/index.html.twig:
