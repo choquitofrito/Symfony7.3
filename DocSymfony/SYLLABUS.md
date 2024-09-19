@@ -9624,7 +9624,7 @@ en rajoutant une propriété **nom,** et vous voulez **générer à nouveau le f
 
 Par défaut, la route **logout** nous menera vers l'action qui affiche le formulaire de **login**. Si on veut lancer une autre action on devra le spéficier dans la configuration, comme expliqué ci-dessous.
 
-1. Rajoutez dans **config/packages/security.yaml** une section qui **indique le path à saisir dans l'URL** et l'action à lancer après que Symfony finisse de gérer le logout (ex: effacer l'objet User de la session) 
+1. Rajoutez dans **config/packages/security.yaml** une section qui **indique le path à saisir dans l'URL** et l'action à lancer après que Symfony finisse de gérer le logout (Symfony effacera l'objet User de la session) 
    
 Il y a deux parties à configurer: 
 
