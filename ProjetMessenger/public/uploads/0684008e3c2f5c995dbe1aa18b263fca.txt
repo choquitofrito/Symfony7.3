@@ -1,0 +1,232 @@
+# Ficha 1: Detectando Obstáculos
+
+**Objetivo:** Aprender a programar el mBot2 para detectar y reaccionar ante obstáculos usando el sensor de ultrasonido.
+
+**Materiales:**
+- mBot2
+- Ordenador con software de programación (mBlock)
+- Obstáculo (caja, libro, etc.)
+
+## Actividad 1: Detenerse ante un Obstáculo
+
+1. Programa al mBot2 para avanzar continuamente.
+2. Programa al mBot2 para detenerse cuando detecte un obstáculo a 20 cm de distancia.
+3. Prueba el programa con diferentes obstáculos y distancias.
+
+## Desafío
+
+- Ajusta el programa para que el mBot2 se detenga a 10 cm de distancia. Observa y compara los resultados.
+
+**Conceptos Matemáticos:**
+- Medición de distancias
+
+
+
+# Ficha 2: Evitando Obstáculos
+
+**Objetivo:** Programar al mBot2 para evitar obstáculos girando al detectar una colisión.
+
+**Materiales:**
+- mBot2
+- Ordenador con software de programación (mBlock)
+- Varios obstáculos (cajas, libros, etc.)
+
+## Actividad 1: Girar al Encontrar un Obstáculo
+
+1. Programa al mBot2 para avanzar continuamente.
+2. Programa al mBot2 para girar 90 grados a la derecha cuando detecte un obstáculo a 15 cm.
+3. Coloca varios obstáculos y observa cómo el mBot2 los evita.
+
+## Desafío
+
+- Modifica el programa para que el mBot2 gire 90 grados a la izquierda si el obstáculo está a menos de 10 cm, y a la derecha si está a menos de 20 cm.
+
+**Conceptos Matemáticos:**
+- Medición de distancias
+- Giros y ángulos
+
+
+
+# Ficha 3: Laberinto de Obstáculos
+
+**Objetivo:** Crear un laberinto sencillo y programar al mBot2 para navegar a través de él sin colisionar.
+
+**Materiales:**
+- mBot2
+- Ordenador con software de programación (mBlock)
+- Materiales para construir un laberinto (cajas, libros, etc.)
+
+## Actividad 1: Navegar por un Laberinto
+
+1. Construye un laberinto sencillo con varios giros y callejones.
+2. Programa al mBot2 para avanzar y girar a la derecha o izquierda al detectar un obstáculo.
+3. Observa cómo el mBot2 navega por el laberinto.
+
+## Desafío
+
+- Modifica el laberinto para que sea más complicado y ajusta el programa del mBot2 para que pueda completarlo sin colisiones.
+
+**Conceptos Matemáticos:**
+- Planificación de rutas
+- Giros y ángulos
+- Resolución de problemas
+
+
+
+
+
+
+
+# Ficha 4: Carreras de Obstáculos
+
+**Objetivo:** Programar al mBot2 para competir en una carrera de obstáculos evitando colisiones.
+
+**Materiales:**
+- mBot2
+- Ordenador con software de programación (mBlock)
+- Obstáculos (cajas, libros, conos, etc.)
+
+## Actividad 1: Carrera de Obstáculos
+
+1. Coloca obstáculos en una pista de carreras.
+2. Programa al mBot2 para avanzar y girar para evitar los obstáculos.
+3. Cronometra cuánto tiempo tarda el mBot2 en completar la pista.
+
+## Desafío
+
+- Ajusta el programa para que el mBot2 intente completar la pista en el menor tiempo posible sin colisionar con los obstáculos.
+
+**Conceptos Matemáticos:**
+- Medición de tiempos
+- Optimización de rutas
+
+
+
+
+
+
+# Ficha 5: Juego de Colisiones Controladas
+
+**Objetivo:** Programar al mBot2 para jugar un juego en el que debe tocar (pero no chocar fuerte) varios obstáculos en un orden específico.
+
+**Materiales:**
+- mBot2
+- Ordenador con software de programación (mBlock)
+- Obstáculos numerados (cajas, libros, etc.)
+
+## Actividad 1: Tocar y Retroceder
+
+1. Coloca obstáculos numerados en diferentes posiciones.
+2. Programa al mBot2 para avanzar hasta el primer obstáculo, tocarlo suavemente y retroceder.
+3. Repite el proceso para los siguientes obstáculos en orden.
+
+## Desafío
+
+- Programa al mBot2 para tocar los obstáculos en un orden aleatorio que se decida al iniciar el programa.
+
+**Conceptos Matemáticos:**
+- Orden y secuencias
+- Introducción a la aleatoriedad
+
+
+
+# Ficha 5: Juego de Colisiones Controladas
+
+**Objetivo:** Programar al mBot2 para jugar un juego en el que debe tocar (pero no chocar fuerte) varios obstáculos en un orden específico.
+
+**Materiales:**
+- mBot2
+- Ordenador con software de programación (mBlock)
+- Obstáculos numerados (cajas, libros, etc.)
+
+## Actividad 1: Tocar y Retroceder
+
+1. Coloca obstáculos numerados en diferentes posiciones.
+2. Programa al mBot2 para avanzar hasta el primer obstáculo, tocarlo suavemente y retroceder.
+3. Repite el proceso para los siguientes obstáculos en orden.
+
+### Solución en Bloques:
+
+- **Para cada obstáculo en la lista de obstáculos numerados**
+  - **Mover hacia adelante**
+  - **Si** (Distancia al obstáculo < 5 cm)
+    - **Detener movimiento**
+    - **Retroceder una pequeña distancia**
+
+## Desafío
+
+- Programa al mBot2 para tocar los obstáculos en un orden aleatorio que se decida al iniciar el programa.
+
+### Solución en Bloques para el Desafío:
+
+- **Al iniciar el programa**
+  - **Crear lista de obstáculos numerados**
+  - **Ordenar la lista aleatoriamente**
+- **Para cada obstáculo en la lista aleatoria**
+  - **Mover hacia adelante**
+  - **Si** (Distancia al obstáculo < 5 cm)
+    - **Detener movimiento**
+    - **Retroceder una pequeña distancia**
+
+**Conceptos Matemáticos:**
+- Orden y secuencias
+- Introducción a la aleatoriedad
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
