@@ -171,7 +171,7 @@
 - [23. Mail](#23-mail)
 - [NEW MailDumper (UPDATE!)](#new-maildumper-update)
 - [24. Authentification : inscription et login/password](#24-authentification--inscription-et-loginpassword)
-  - [2.4.1. Configuration de la sécurité et création d'un formulaire de login](#241-configuration-de-la-sécurité-et-création-dun-formulaire-de-login)
+  - [24.1. Configuration de la sécurité et création d'un formulaire de login](#241-configuration-de-la-sécurité-et-création-dun-formulaire-de-login)
   - [24.2. Création d'un formulaire d'inscription](#242-création-dun-formulaire-dinscription)
   - [24.3. Logout](#243-logout)
 - [25. Accès à l'objet app.user](#25-accès-à-lobjet-appuser)
@@ -9093,7 +9093,7 @@ Créez un projet **ProjetLoginPass**.
 
 <br>
 
-## 2.4.1. Configuration de la sécurité et création d'un formulaire de login
+## 24.1. Configuration de la sécurité et création d'un formulaire de login
 
 <br>
 
@@ -9106,16 +9106,16 @@ On va réaliser une configuration de base de la sécurité pour pouvoir créer u
 
 **Resumé de la procédure** à suivre (en détail juste **après**) :
 
-1.  **Installer le support de sécurité dans le projet**
+- **Installer le support de sécurité dans le projet**
 
-2.  **Créer** **une** **entité** **User** (assistant)
+- **Créer** **une** **entité** **User** (assistant)
 
-3.  Configurer la BD dans **.env**, créer le **schéma** de la BD, créer et lancer une **migration**
+- Configurer la BD dans **.env**, créer le **schéma** de la BD, créer et lancer une **migration**
 
-4.  **Encoder des utilisateurs et de passwords dans la BD** (fixtures)
+- **Encoder des utilisateurs et de passwords dans la BD** (fixtures)
 
-5.  **Vérifier** le bon fonctionnement en tapant un couple login/pass valable
---
+- **Vérifier** le bon fonctionnement en tapant un couple login/pass valable
+
 <br>
 
 **Voici la procédure**: 
@@ -9399,7 +9399,7 @@ de l'action **login** du controller.
 
 
 
-**6**. **Encoder des utilisateurs et de passwords dans la BD**
+**5**. **Encoder des utilisateurs et de passwords dans la BD**
 
 Créez une fixture pour la classe User (voir chapitre précédant sur le
 Doctrine Fixtures).
@@ -9491,7 +9491,7 @@ Dans **phpmyadmin** votre tableau **User** ressemblera à :
 ![](./images/usertable.png)
 
 
-**9**. Décider l'action à realiser si le login est correct dans **/config/packages/security.yaml**
+**6**. Décider l'action à realiser si le login est correct dans **/config/packages/security.yaml**
 
 ```php
 
@@ -9529,11 +9529,16 @@ Dans **phpmyadmin** votre tableau **User** ressemblera à :
 
 
 
-**8**.  **Vérifier** le bon fonctionnement en tapant un couple login/pass
+**7**.  **Vérifier** le bon fonctionnement en tapant un couple login/pass
     valable
 
 Allez sur la page de login (par défaut l'action **login** dans **SecurityController**) et tapez un couple *login/pass* valable (ex: user "user1@lala.com" et password "lePassword1"). 
 
+**8**. Créez le controller d'accueil **AccueilController**
+
+    symfony console make:controller AccueilController
+
+(Si vous utilisez l'assitant il créera le controller et une vue index.html.twig)
 
 **Controller** (src/Controller/AccueilController):
 
