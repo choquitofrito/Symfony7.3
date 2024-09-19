@@ -110,10 +110,11 @@
   - [17.1. Fixtures multi-entity et ordre d'exécution](#171-fixtures-multi-entity-et-ordre-dexécution)
   - [17.2. Fixtures dans un Many-to-Many décomposé en deux One-To-Many](#172-fixtures-dans-un-many-to-many-décomposé-en-deux-one-to-many)
   - [17.3. Fixtures dans un Many-To-Many](#173-fixtures-dans-un-many-to-many)
-  - [17.4. Fixtures basées sur un fichier .sql](#174-fixtures-basées-sur-un-fichier-sql)
-  - [17.4. Exclure un ou plusieurs tableaux du purge](#174-exclure-un-ou-plusieurs-tableaux-du-purge)
+  - [17.4. Fixtures dans un Many-To-Many en utilisant addReference et getReference](#174-fixtures-dans-un-many-to-many-en-utilisant-addreference-et-getreference)
+  - [17.5. Fixtures basées sur un fichier .sql](#175-fixtures-basées-sur-un-fichier-sql)
+  - [17.6. Exclure un ou plusieurs tableaux du purge](#176-exclure-un-ou-plusieurs-tableaux-du-purge)
     - [Exercices :](#exercices-)
-  - [17.5. Fichier batch: reinitialisation de la BD et les fixtures, migration](#175-fichier-batch-reinitialisation-de-la-bd-et-les-fixtures-migration)
+  - [17.7. Fichier batch: reinitialisation de la BD et les fixtures, migration](#177-fichier-batch-reinitialisation-de-la-bd-et-les-fixtures-migration)
 - [18. Accès à la BD avec DQL](#18-accès-à-la-bd-avec-dql)
   - [18.1. SELECT](#181-select)
     - [18.1.1. Requête qui renvoi un array d'arrays](#1811-requête-qui-renvoi-un-array-darrays)
@@ -938,7 +939,7 @@ public function messageResponse(){
 Quand on fait appel à une action du controller on est en train de
 **faire une requête au controller** (rien à voir avec les requêtes de BD
 !). Les informations concernant cette requête (ex : les valeurs des
-paramètres dans la URL) sont accessibles via l'objet **Request**.
+paramètres dans la URL) sont accesibles via l'objet **Request**.
 
 L'objet **Request** nous permet d'accéder aux variables super-globales
 telles que **`$_POST`**, **`$_GET`**, **`$_SERVER`** , **`$_FILES`**.
@@ -1352,7 +1353,7 @@ public function afficheVille()
 }
 ```
 
-Nouvenons de rajouter un paramètre à l'appel **render**. Cela nous permet d'envoyer de valeurs à la vue. Le format est **d'un array associatif dont les clés deviennent de variables** accessibles dans le twig. Ici on l'a appelé $vars mais le nom n'a aucune importance.
+Nouvenons de rajouter un paramètre à l'appel **render**. Cela nous permet d'envoyer de valeurs à la vue. Le format est **d'un array associatif dont les clés deviennent de variables** accesibles dans le twig. Ici on l'a appelé $vars mais le nom n'a aucune importance.
 
 On va utiliser maintenant ces variables dans le template twig. **Notez que pour accéder aux variables on a juste utilisé les clés de l'array**
 
@@ -1383,7 +1384,7 @@ et on accède dans le template twig:
 {{ cinema }}
 ```
 
-Si on veut envoyer un array indexé il faudra lui "donner" une clé pour qu'il soit accessible dans le fichier twig. Par exemple :
+Si on veut envoyer un array indexé il faudra lui "donner" une clé pour qu'il soit accesible dans le fichier twig. Par exemple :
 
 ```php
 $lesStagiaires = ['Jessica','Emilie','Leslie'];
@@ -2632,7 +2633,7 @@ de figure.
 <br>
 
 Nous pouvons rajouter de paramètres aux services en utilisant *services.yaml*. Dans ce fichier on configure la manière dont les
-services deviendront accessibles dans nos controllers.
+services deviendront accesibles dans nos controllers.
 
 **Exemple** : un service Bonjour qui affiche "bonjour à tous" dans la langue parametrée dans services.yaml
 
@@ -4925,7 +4926,7 @@ class ClientAdresseFixture extends Fixture
 Certains Fixtures dépendent d'autres. Si vous avez, par exemple, une Fixture qui relie deux entités (ex: **LinkClientsEmprunts** qui relie les Clients et les Emprunts), vous devez remplir les entités Clients et les Prêts **avant** de lancer la fixture qui lie les deux ("LinkClientsEmprunts"). 
 
 Nous ne pouvons pas établir l'ordre dans lequel les fixtures seront exécutées, mais 
-nous pouvons spécifier qu'**une Fixture dépend d'une autre = doit attendre l'exécution d'une autre**). Nous aurons alors le même effet de séquence/ 
+nous pouvons spécifier qu'**une Fixture dépend d'une autre = doit attendre l'exécution d'une autre**). Nous aurons alors le même effet de séquence.
 
 Vous pouvez obtenir plus d'informations à ce sujet ici:
 
@@ -4987,6 +4988,9 @@ class AeroportFixtures extends Fixture
 ## 17.2. Fixtures dans un Many-to-Many décomposé en deux One-To-Many 
 
 On considére ici le cas de la relation Many-To-Many **Commande<->Produit**, décomposée en  deux One-To-Many **Commande<->DetailCommande<->Produit** (exemple classique du cours d'UML)
+
+**Important:** ici on n'utilise pas le couple de méthodes **addReference** et **setReference** à cause de nos limitations de temps.
+Les rélation seront créés en utilisant **add** et **set**.
 
 
 **ProduitFixtures**
@@ -5157,7 +5161,123 @@ class AuteurLivreFixtures extends Fixture implements DependentFixtureInterface
 }
 ```
 
-## 17.4. Fixtures basées sur un fichier .sql
+## 17.4. Fixtures dans un Many-To-Many en utilisant addReference et getReference
+
+Il existe un mécanisme plus simple pour fixer les rélations entre les entités de notre modèle: les méthodes 
+**addReference** et **getReference**.
+
+**addReference ('nomobjet', $objet)** rend accéssible un objet dans le reste des fixtures
+
+**getReference ('nomobjet')** obtient un objet qui a été rendu accésible dans une autre fixture
+
+Voyons un exemple très clair:
+
+**Exemple**: **Utilisateurs** qui **commentent** de **Recettes**
+
+**UtilisateurFixtures.php**
+
+```php
+.
+.
+.
+        for ($i = 0; $i < 5; $i++) {
+            $user = new Utilisateur();
+            $user->setEmail("user" . $i . "@gmail.com");
+             $user->setRoles(['ROLE_USER']);
+
+            // on crée un password hashé
+            $hashedPassword = $this->passwordHasher->hashPassword($user, 'lepassword');
+
+            $user->setNom("nom" . $i);
+            $user->setPassword($hashedPassword);
+
+            // addReference rend accésible cet objet 
+            // depuis tout le reste de fixtures
+            // en utilisant $this->getReference ('utilisateur0'), 
+            // $this->getReference ('utilisateur1') ... etc...
+            
+            $this->addReference('utilisateur' . $i, $user);
+            $manager->persist($user);
+        }
+
+        $manager->flush();
+.
+.
+.
+```
+
+
+**CommentairesFixtures.php**
+
+```php
+.
+.
+
+    for ($i = 0; $i < 10; $i++) {
+            $commentaire = new Commentaire([
+                'contenu' => $faker->text(),
+                'dateCommentaire' => $faker->dateTime(),
+                'utilisateur' => $this->getReference('utilisateur' . rand(0, 4)), // attention à ne pas dépasser le nombre d'users
+                'recette' => $this->getReference('recette' . rand(0, 9)),
+            ]);
+
+
+            // addReference rend accésible cet objet 
+            // depuis tout le reste de fixtures
+            // en utilisant $this->getReference ('commentaire0'), 
+            // $this->getReference ('commentaire1') ... etc...
+
+            $this->addReference('commentaire' . $i, $commentaire);
+
+
+            $manager->persist($commentaire);
+    }
+.
+.
+.
+
+```
+
+**RecetteFixtures.php**
+
+```php
+.
+.
+        for ($i = 0; $i < 10; $i++) {
+           $recette = new Recette([
+            'titre' => $faker->sentence(3),
+            'description' => $faker->text(100),
+            'difficulte' => $faker->numberBetween(1,5),
+            'image' => $faker->imageUrl(640, 480, 'food', true),
+            'datePublication' => $faker->dateTimeBetween('-1 year', 'now'),
+            'tempsDePreparation' => new \DateTime($faker->time()),
+            'tempsDeCuison' => new \DateTime($faker->time()),
+            'nombrePortions' => $faker->numberBetween(1, 10),
+            'saison' => $faker->sentence(1),
+            'origine' => $faker->sentence(2),
+
+            // on accéde aux objets qui ont été rendus accésibles dépuis 
+            // les autres fixtures en utilisant getReference
+
+            'utilisateur' => $this->getReference('utilisateur'.rand(0,4)), // attention!! nombre users
+            'ingredient' => $this->getReference('ingredient'.rand(0,9)),
+            
+           ]);
+           
+           $this->addReference('recette' . $i, $recette);
+
+           $manager->persist($recette);
+       }
+       $manager->flush();
+    }
+.
+.
+
+```
+
+
+
+## 17.5. Fixtures basées sur un fichier .sql
 
 <br>
 
@@ -5218,7 +5338,7 @@ class CustomFixtures extends Fixture implements ContainerAwareInterface
 ```
 <br>
 
-## 17.4. Exclure un ou plusieurs tableaux du purge
+## 17.6. Exclure un ou plusieurs tableaux du purge
 
 <br>
 
@@ -5241,7 +5361,7 @@ Dans ce cas, matable et autretable ne seront pas purgées.
 <br>
 
 
-## 17.5. Fichier batch: reinitialisation de la BD et les fixtures, migration
+## 17.7. Fichier batch: reinitialisation de la BD et les fixtures, migration
 
 Vous pouvez lancez un fichier migration.bat pour vous simplifier la ré-création de la BD et lancer les fixtures.
 Le fichier se trouve dans le dossier de la doc, copiez-le dans la racine de votre projet.
@@ -5905,7 +6025,7 @@ dd($query->getSql());
 
 # 21. Formulaires en Symfony
 
-Un formulaire est un ensemble d'éléments HTML dont leur contenu est envoyé au serveur (**action**) en exécutant un **submit**. Les infos sont traitées par un serveur. Le serveur reçoit une requête **POST** ou **GET** qui contient les contenus des éléments du formulaire. En PHP, ces contenus sont accessibles à partir de la variable $_POST ou $_GET.
+Un formulaire est un ensemble d'éléments HTML dont leur contenu est envoyé au serveur (**action**) en exécutant un **submit**. Les infos sont traitées par un serveur. Le serveur reçoit une requête **POST** ou **GET** qui contient les contenus des éléments du formulaire. En PHP, ces contenus sont accesibles à partir de la variable $_POST ou $_GET.
 
 En Symfony nous avons plusieurs options pour créer un formulaire :
 
@@ -9775,7 +9895,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GestionController extends AbstractController
 {
-    // ces routes seront accessibles uniquement pour certains roles
+    // ces routes seront accesibles uniquement pour certains roles
     // quand on le fixera ainsi dans /config/packages/security.yaml. 
     #[Route("/gestion/action1")]
     public function action1()
