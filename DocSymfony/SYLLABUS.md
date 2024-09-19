@@ -1,6 +1,4 @@
 # Notes sur Symfony 7
-
-
 - [Notes sur Symfony 7](#notes-sur-symfony-7)
 - [1. Configuration de base : Composer, Git, XDebug, Visual Studio](#1-configuration-de-base--composer-git-xdebug-visual-studio)
 - [2. Installation des outils de base de Symfony](#2-installation-des-outils-de-base-de-symfony)
@@ -205,6 +203,7 @@
     - [2. Controllers et vues](#2-controllers-et-vues)
   - [Annexe 2. Création d'un serveur virtuel (virtual host) pour un projet en Windows](#annexe-2-création-dun-serveur-virtuel-virtual-host-pour-un-projet-en-windows)
     - [Exercice : création d'un projet contenant l'application skeleton](#exercice--création-dun-projet-contenant-lapplication-skeleton)
+
 
 
 <br>
