@@ -19,7 +19,7 @@ Considérez cette séquence :
 
 **2**. Le controller reçoit le formulaire
 
-**3**. Le controller fait appel à un service d'upload, tout ok
+**3**. Le controller fait appel à un service d'upload, tout ok. 
 
 **4**. Le controller traite l'image
 
@@ -32,7 +32,7 @@ l'éxécution de notre controller est **synchrone**.
 
 Nous allons faire le code pour gérer cette situation!
 On créera un controller qui affichera un formulaire d'upload pour uploader des images de pays. L'image será stocké dans le serveur après l'avoir reduite.
-Le traitement se fera de façon **asynchrone**: l'utilisateur recevra la réponse "upload ok" sans devoir attendre le traitement de l'image.
+Le traitement se fera de façon **asynchrone**: **l'utilisateur recevra la réponse "upload ok" sans devoir attendre le traitement de l'image**.
 
 On sait que le traitement se fera vraiment très vite. Pour pouvoir apprecier l'asynchronicité on mettra un sleep dans la fonction du traitement... on 
 pourra voir que le client reçoit quand-même la réponse sans devoir attendre!
@@ -73,14 +73,26 @@ symfony composer req --dev orm-fixtures
 
 Dans **services.yaml**, assurez-vous d'avoir mis le paramètre pour configurer l'emplacement des uploads
 
+
 ```yaml
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
         bind:
             $dossierUpload: '%kernel.project_dir%/public/uploads'
+.
+.
+.
 ```
 
 
@@ -176,7 +188,10 @@ class ResizeImage {
 namespace App\MessageHandler;
 
 use App\Message\ResizeImage;
+
 use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 
@@ -187,29 +202,66 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class ResizeImageHandler {
 
     private $imageManager;
+    private $logger;
 
     // on injecte l'ImageManager
-    public function __construct (ImageManager $imageManager){
+    public function __construct (LoggerInterface $logger, ImageManager $imageManager){
+        
+        $this->logger = $logger;
         // librairie externe, on ne peux pas 
-        // l'injecter sans le configurer
+        // l'injecter sans le configurer (voir services.yaml)
         $this->imageManager = $imageManager;
 
     }
 
     public function __invoke (ResizeImage $message){
-        dump ("Path du fichier: " . $message->getPath()); // voir dans la console où vous avez lancé le worker
+        $this->logger->info("Path du fichier: " . $message->getPath());
         // delai provoqué exprès
         sleep (10);
         // traitement de l'image
-        $image = $this->imageManager->make ($message->getPath());
+        $image = $this->imageManager->read ($message->getPath());
         $image->resize ($message->getWidth(), $message->getHeight());
         // enregistrer l'image sur le disque
         $image->save();
     }
 }
+
 ```
 
-## Configurar le transport dans .env
+## Configurer le message dans config/packages/messenger.yaml
+
+```yaml
+.
+.
+.
+        routing:
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: async
+            Symfony\Component\Notifier\Message\ChatMessage: async
+            Symfony\Component\Notifier\Message\SmsMessage: async
+
+
+            # Route your messages to the transports
+            App\Message\ResizeImage: async
+
+```
+
+## Configurer la création du ImageManager dans services.yaml
+
+Dans **config/services.yaml** on doit rajouter ImageManager comme service:
+
+```yaml
+.
+.
+.
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+    Intervention\Image\ImageManager:
+        arguments:
+            $driver: Intervention\Image\Drivers\Gd\Driver
+```
+
+
+## Configurer le transport dans .env
 
 ```yaml
 ###> symfony/messenger ###
@@ -217,7 +269,11 @@ class ResizeImageHandler {
 MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
 ```
 
-## Créer le service
+
+## Créer le service pour gérer l'image et le service d'upload
+
+
+**src/Service/ImageHelper**
 
 
 ```php
@@ -255,8 +311,97 @@ class ImageHelper {
 }
 ```
 
+**src/Service/UploadHelper**
+
+```php
+<?php
+
+namespace App\Service;
+
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
+class UploadHelper
+{
+    private string $dossierUpload;
+
+    public function __construct (string $dossierUpload){
+        $this->dossierUpload = $dossierUpload;
+    }
+
+    public function uploadImage(UploadedFile $fichier): string
+    {
+
+        // obtenir un nom de fichier unique pour éviter les doublons dans le dossierUpload
+        $nomFichierServeur = md5(uniqid()) . "." . $fichier->guessExtension();
+        // stocker le fichier dans le serveur (on peut préciser encore plus le dossier)
+        $fichier->move($this->dossierUpload . "/", $nomFichierServeur);
+        return $nomFichierServeur;
+    }
+
+    
+
+}
+```
+
 
 ## Créer le controller
+
+```php
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Pays;
+use App\Form\PaysType;
+use App\Service\ImageHelper;
+use App\Service\UploadHelper;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
+class UploadAsyncController extends AbstractController
+{
+
+    // action pour uploader une image et la traiter en utilisant messenger
+    // Le traitement de l'image se fait de façon asynchrone (ASYNC). 
+    #[Route("/upload/async")]
+    public function uploadAsync(Request $request, ManagerRegistry $doctrine, UploadHelper $uploader, ImageHelper $imageHelper)
+    {
+        $pays = new Pays();
+
+        $formulairePays = $this->createForm(PaysType::class, $pays);
+        $formulairePays->handleRequest($request);
+
+        if ($formulairePays->isSubmitted() && $formulairePays->isValid()) {
+
+            $fichier = $formulairePays['image']->getData();
+            if ($fichier) {
+                $nomFichierServeur = $uploader->uploadImage($fichier);
+                $pays->setImage($nomFichierServeur);
+            }
+
+            // on a l'image et on va changer sa taille dans le disque: on appelle le service 
+            // ImageHelper qui, à son tour, envoie un message à ResizeImageHandler
+            $imageHelper->resize($nomFichierServeur, 30,30);
+
+
+            $em = $doctrine->getManager();
+            $em->persist($pays);  // pas besoin
+            $em->flush();
+            return new Response("Entité mise à jour dans la BD. Si le fichier a été selectionné, upload ok!");
+        } else {
+            return $this->render(
+                "/upload_async/affichage_form_upload.html.twig",
+                ['formulaire' => $formulairePays->createView()]
+            );
+        }
+    }
+}
+```
+
+## Lancer le worker
 
 Pour consommer les messages, on lance le **worker**:
 
@@ -264,26 +409,7 @@ Pour consommer les messages, on lance le **worker**:
 php bin/console messenger:consume async -vv
 ```
 
-messenger.yaml : rajouter             reset_on_message: true
 
-
-Dans services.yaml on doit rajouter ImageManager comme service:
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    Intervention\Image\ImageManager:
-
-
-# Installation
-
-```
-composer require symfony/messenger
-```
-
-1. Créer le message
-2. Créer le handler
-3. Configurer le transport
-4. Envoyer un message dans un service où un controller (il faut injecter le MessageBus)
 
 
 # Avantages d'utiliser Messenger

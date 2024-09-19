@@ -7,6 +7,7 @@ use App\Message\ResizeImage;
 
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 
@@ -17,19 +18,20 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class ResizeImageHandler {
 
     private $imageManager;
+    private $logger;
 
     // on injecte l'ImageManager
-    public function __construct (){
+    public function __construct (LoggerInterface $logger, ImageManager $imageManager){
+        
+        $this->logger = $logger;
         // librairie externe, on ne peux pas 
-        // l'injecter sans le configurer
-        $this->imageManager = new ImageManager(
-            new Driver()
-        );
+        // l'injecter sans le configurer (voir services.yaml)
+        $this->imageManager = $imageManager;
 
     }
 
     public function __invoke (ResizeImage $message){
-        dump ("Path du fichier: " . $message->getPath()); // voir dans la console où vous avez lancé le worker
+        $this->logger->info("Path du fichier: " . $message->getPath());
         // delai provoqué exprès
         sleep (10);
         // traitement de l'image
