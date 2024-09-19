@@ -9226,7 +9226,7 @@ class SecurityController extends AbstractController
 
 ```
 
-Observez le template crée dans le dossier /templates/security/index.html.twig:
+Observez le template crée dans le dossier /templates/security/login.html.twig:
 
 
 ```twig
