@@ -10990,13 +10990,19 @@ import 'bootstrap/dist/css/bootstrap.css';
 ```js
 .
 .
-.
+// app.js
+import './styles/app.css';
+// rajouter
+// jquery
+const $ = require ('jquery');
+window.jQuery = $;
+window.$ = $;
+
 // Importer la partie js de Bootstrap
 import 'bootstrap';
 
 // Importer la partie css de Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
-.
 .
 .
 ```
@@ -11013,7 +11019,6 @@ npm install font-awesome
 ```
 
 <br>
-
 
 
 
