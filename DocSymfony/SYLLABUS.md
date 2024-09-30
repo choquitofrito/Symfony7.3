@@ -8147,6 +8147,8 @@ Ce champ pourra ou pas être caché. Le but est de l'envoyer sans que ça soit v
 <br>
 
 
+
+
 ## 21.15. Création d'un formulaire de recherche avec de filtres (AJAX - Axios)
 
 Voici comment créer un formulaire de recherche en AJAX contenant plusieurs filtres.
@@ -10979,14 +10981,25 @@ npm install jquery @popperjs/core
 yarn add jquery @popperjs/core 
 ```
 
-Pour utiliser les style .css de bootstrap on doit d'abord l'importer. Rajoutez dans le fichier **/assets/styles/app.css** :
+Pour utiliser les style .css de bootstrap on doit d'abord l'importer. Rajoutez dans le fichier **/assets/app.js** :
 
 ```css
 import 'bootstrap/dist/css/bootstrap.css';
 ```
 
-On utilise la tilde pour referencer un fichier qui se trouve dans le dossier **node_modules** (sans devoir rajouter 'node_modules' dans le chemin).
+```js
+.
+.
+.
+// Importer la partie js de Bootstrap
+import 'bootstrap';
 
+// Importer la partie css de Bootstrap
+import 'bootstrap/dist/css/bootstrap.min.css';
+.
+.
+.
+```
 
 Pour les fonts utilisées par bootstrap :
 
