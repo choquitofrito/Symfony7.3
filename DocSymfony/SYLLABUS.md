@@ -5205,6 +5205,41 @@ Voyons un exemple très clair:
 .
 ```
 
+**RecetteFixtures.php**
+
+```php
+.
+.
+        for ($i = 0; $i < 10; $i++) {
+           $recette = new Recette([
+            'titre' => $faker->sentence(3),
+            'description' => $faker->text(100),
+            'difficulte' => $faker->numberBetween(1,5),
+            'image' => $faker->imageUrl(640, 480, 'food', true),
+            'datePublication' => $faker->dateTimeBetween('-1 year', 'now'),
+            'tempsDePreparation' => new \DateTime($faker->time()),
+            'tempsDeCuison' => new \DateTime($faker->time()),
+            'nombrePortions' => $faker->numberBetween(1, 10),
+            'saison' => $faker->sentence(1),
+            'origine' => $faker->sentence(2),
+
+            // on accéde aux objets qui ont été rendus accésibles dépuis 
+            // les autres fixtures en utilisant getReference
+            'utilisateur' => $this->getReference('utilisateur'.rand(0,4)), // attention!! nombre users
+            
+           ]);
+           
+           $this->addReference('recette' . $i, $recette);
+
+           $manager->persist($recette);
+       }
+       $manager->flush();
+.
+.
+
+```
+
+
 
 **CommentairesFixtures.php**
 
@@ -5237,42 +5272,6 @@ Voyons un exemple très clair:
 
 ```
 
-**RecetteFixtures.php**
-
-```php
-.
-.
-        for ($i = 0; $i < 10; $i++) {
-           $recette = new Recette([
-            'titre' => $faker->sentence(3),
-            'description' => $faker->text(100),
-            'difficulte' => $faker->numberBetween(1,5),
-            'image' => $faker->imageUrl(640, 480, 'food', true),
-            'datePublication' => $faker->dateTimeBetween('-1 year', 'now'),
-            'tempsDePreparation' => new \DateTime($faker->time()),
-            'tempsDeCuison' => new \DateTime($faker->time()),
-            'nombrePortions' => $faker->numberBetween(1, 10),
-            'saison' => $faker->sentence(1),
-            'origine' => $faker->sentence(2),
-
-            // on accéde aux objets qui ont été rendus accésibles dépuis 
-            // les autres fixtures en utilisant getReference
-
-            'utilisateur' => $this->getReference('utilisateur'.rand(0,4)), // attention!! nombre users
-            'ingredient' => $this->getReference('ingredient'.rand(0,9)),
-            
-           ]);
-           
-           $this->addReference('recette' . $i, $recette);
-
-           $manager->persist($recette);
-       }
-       $manager->flush();
-    }
-.
-.
-
-```
 
 
 
@@ -5283,59 +5282,33 @@ Voyons un exemple très clair:
 Si vous avez un fichier contenant du SQL (ex: pour insérer de données dans une BD), vous pouvez créer une fixture capable de lancer l'ensemble d'instructions SQL d'un fichier :
 
 ```php
-// ProjetModeleSymfony\src\DataFixtures\CustomFixtures.php
-<?php
-namespace App\DataFixtures;
-
-
-use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Persistence\ObjectManager;
-
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Finder\Finder;
-
-
-// Cette fixture lancera tous les fichiers sql qui se trouvent dans DataFixtures/sql
-// Utile si vous voulez lancez du SQL fixe en dehors des fixtures standards
-
-// Pour créer les fichiers, faites export (enlevez création de tables etc... ce qui compte ce sont les inserts)
-class CustomFixtures extends Fixture implements ContainerAwareInterface
+class CustomFixtures extends Fixture
 {
-
-    private $container;
-
-    public function load(ObjectManager $om)
+    private $em;
+ 
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+    public function load(ObjectManager $manager):void
     {
         $finder = new Finder();
-
-        // chercher le fichier qui contient le SQL, à nous de choisir son emplacement
-        $finder->files()->in('src/DataFixtures/sql'); // si on veut charger plusieurs fichier sql
-        
-        $content = "" ;
-        $cnx = $this->container->get("doctrine")->getConnection();
-        $cnx->beginTransaction();
-        
+ 
+        $finder->files()->in('src/DataFixtures/sql');
+ 
+        $cnx = $this->em->getConnection();
+ 
         foreach ($finder as $file){
-            // lire le contenu SQL du fichier. Observez vous-même le contenu
             $content = $file->getContents();
             $cnx->setAutoCommit(false);
-            $cnx->exec ($content);
-  
+            $cnx->executeStatement($content);
         }
+        $manager->flush();
     
     }
 
-    public function setContainer(?ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
 }
-
 ```
-<br>
 
 ## 17.6. Exclure un ou plusieurs tableaux du purge
 
