@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+{{ texteResponse }}
+{% endblock %}
+
+
+
+{% block stylesheets %}
+
+<style>
+/* Apply a soft, full-screen background gradient */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #6dd5ed, #2193b0);
+    background-size: 300% 300%;
+    animation: backgroundAnimation 10s ease infinite;
+    font-family: 'Open Sans', sans-serif;
+    color: #fff;
+    text-align: center;
+    line-height: 1.5;
+}
+
+
+
+/* Keyframes for background gradient animation */
+@keyframes backgroundAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Fade-in effect for the text */
+@keyframes fadeInText {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Optional subtle shadow effect for the text */
+h1::after {
+    content: '';
+    display: block;
+    margin-top: 10px;
+    width: 80px;
+    height: 3px;
+    background: #ffb385;
+    opacity: 0.8;
+    animation: fadeInText 2s ease-in-out forwards;
+}
+
+</style>
+    
+{% endblock %}
