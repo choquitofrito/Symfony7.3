@@ -7,7 +7,7 @@
 
 parameters:
     # paramètre accésible depuis les controllers
-     dossier_upload: '%kernel.project_dir%/public/dossierFichiers'
+     dossier_uploads: '%kernel.project_dir%/public/dossierFichiers'
 
 services:
     # default configuration for services in *this* file

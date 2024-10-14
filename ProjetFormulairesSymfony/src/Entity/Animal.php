@@ -52,6 +52,13 @@ class Animal
     // méthodes crées pour gérer les images dans l'entité
     public function addImage(string $image): self
     {
+        // dump ($image);
+        // dd($this->images);
+
+        if (!is_array($this->images)) {
+            $this->images = [];
+        }
+
         // chercher l'image dans les images existants (c'est une recherche de string, il s'agit de liens)
         if (!in_array($image, $this->images, true)) {
             $this->images[] = $image;

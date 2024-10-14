@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    
+
+{# templates/animal/upload.html.twig #}
+<form id="upload-form" method="post" enctype="multipart/form-data">
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <ul id="file-list"></ul> <!-- Place where selected files will appear -->
+        <button type="submit">Upload</button>
+    {{ form_end(form) }}
+</form>
+
+<script>
+let allFiles = []; // Array pour stocker tous les noms des fichiers
+
+// Le nom #animal_files doit être le même que dans le formulaire (Symfony rajoutele prefix "animal_")
+// Observez le code de AnimalType.php pour mieux comprendre
+document.querySelector('#animal_files').addEventListener('change', function(e) {
+
+    // Obtenir les fichiers qui viennent d'être selectionnés (class File)
+    const newFiles = Array.from(e.target.files); 
+    
+    allFiles = allFiles.concat(newFiles); // Rajouter les fichiers à la liste des fichiers selectionnés
+                                            // "concat" permet de concaténer les 2 listes
+
+    // Afficher les noms des fichiers selectionnés (DOM)
+    const fileList = document.querySelector('#file-list');
+    fileList.innerHTML = ''; // Nettoyer la liste de fichiers pour éviter les doublons
+
+    // Parcourir tous les fichiers
+    allFiles.forEach((file, index) => {
+        // Créer une liste pour afficher les fichiers choisis
+        const listItem = document.createElement('li');
+        listItem.classList.add('file-item');
+
+        // Afficher le nom du fichier
+        listItem.textContent = file.name;
+
+        // Rajouter un lien pour effacer du DOM
+        const removeLink = document.createElement('a');
+        removeLink.href = '#';
+        removeLink.textContent = ' X';
+        removeLink.classList.add('remove-file');
+        removeLink.onclick = function(e) {
+            e.preventDefault();
+            allFiles.splice(index, 1); // effacer le fichier de l'array
+            listItem.remove(); // effacer le nom du fichier de la liste
+        };
+
+        // Ajouter le lien à la liste
+        listItem.appendChild(removeLink);
+        // Ajouter le fichier à la liste
+        fileList.appendChild(listItem);
+    });
+
+    // Effacer l'input file (on devra alors envoyer les données avec formdata)
+    e.target.value = '';
+});
+
+document.querySelector('#upload-form').addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevent the default form submission
+
+    // Créer un FormData pour le form
+    const formData = new FormData(this); 
+
+    // Rajouter les fichier selectionnés. Attention car le nom "animal[files][]"
+    // doit être le même que dans le formulaire
+    allFiles.forEach((file, index) => {
+        formData.append('animal[files][]', file); // Make sure this matches your form field name
+    });
+
+    // Submit
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json()) // parser la reponse en JSON
+    .then(data => {
+        console.log (data); 
+        console.log('Submit ok:', data.message); 
+        // afficher un message dans le dom?
+    })
+    .catch(error => {
+        console.error('Error dans la soumission:', error);
+    });
+});
+
+</script>
+{% endblock %}
