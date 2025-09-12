@@ -691,7 +691,7 @@ En utilisant la documentation sur les expressions régulières :
 <br>
 
 Nous pouvons facilement établir une valeur par défaut pour nos
-paramètres en rajoutant **?** et puis la valeur dans l'annotation.
+paramètres en rajoutant **?** et puis la valeur dans l'attribut.
 
 **Exemple :** donner une valeur par défaut au paramètre TVA de l'action
 qui calcule la TVA
@@ -1370,8 +1370,8 @@ Le nom de la ville est:
 {{ nom }}
 La population est:
 {{ population }}
-Cette ville se trouve dans ce client:
-{{ client }}
+Cette ville se trouve dans ce pays:
+{{ pays }}
 
 {% endblock %}
 ```
@@ -1486,8 +1486,8 @@ Les voitures :
 Vous pouvez aussi **créer de variables dans twig**.
 
 ```twig
-{{ set nomVar = 5 }}
-{{ set tab = [4,5,6] }}
+{% set nomVar = 5 %}
+{% set tab = [4,5,6] %}
 ```
 
 <br>
@@ -2162,6 +2162,14 @@ Pour gérer proprement les erreurs dans une application Web nous avons plusieurs
 
 Cette méthode s'applique dans l'environnement de **prod**, car dans l'environnement de **dev** le Symfony Profiler est activé. Changez alors **dev** en **prod** dans le fichier **.env**. Une fois le changement est fait :
 
+**Note Symfony 7.3** : La structure de dossiers pour les templates d'erreur est maintenant :
+```
+templates/
+  bundles/
+    TwigBundle/
+      Exception/
+```
+
 1.  Créez cette **structure de dossiers** dans le dossier **templates**
 
 
@@ -2330,7 +2338,7 @@ services disponibles pour chaque mode.
 <br>
 
 Par défaut Symfony lit le contenu du fichier **.env**. **Ce fichier sera pris en compte par GIT et mis dans le repository si vous faites push**.
-Si on veut développer localement (avec les paramètres de BD locaux et tout le reste de la configuration) on a l'option de créer un fichier **.env.local**. Ce fichier peut être un copie modifiée du fichier **.env** où, par exemple, on choisit la valeur **dev** pour **APP_DEV**.
+Si on veut développer localement (avec les paramètres de BD locaux et tout le reste de la configuration) on a l'option de créer un fichier **.env.local**. Ce fichier peut être un copie modifiée du fichier **.env** où, par exemple, on choisit la valeur **dev** pour **APP_ENV**.
 
 Ce fichier:
 
@@ -2349,6 +2357,12 @@ composer install --no-dev --optimize-autoloader
 ```
 
 qui effacera les packages qui ne sont pas nécessaires en production.
+
+**Nouveau en Symfony 7.3** : Pour optimiser les performances en production, vous pouvez utiliser :
+```console
+composer dump-env prod
+```
+Cette commande génère un fichier `.env.local.php` qui améliore les performances de chargement des variables d'environnement.
 
 Si vous voulez mettre un projet en production, créez un fichier **env.local** avec les paramètres sensibles **dans le serveur de production**. On ne veut pas que notre fichier **.env** contenant le mot de pass de la bd soit posté dans github!
 
@@ -2383,7 +2397,7 @@ Cette fonction affiche le contenu complet de la variable d'une façon très comp
 
 ![](/images/i006.png)
 
-La fonction **dd($variable** est encore plus utile car elle combine un **dump** et puis un **die**.
+La fonction **dd($variable)** est encore plus utile car elle combine un **dump** et puis un **die**.
 
 ```
 dd ($livre)
@@ -2612,7 +2626,7 @@ class ExemplesPropreServiceInjectionController extends AbstractController
                 
         // on injecte le service diréctement dans le constructeur du controller
         public function __construct (private Statistiques $mesStats){
-            $this->mesStats = $mesStats;
+            // Les propriétés privées sont automatiquement assignées avec PHP 8+ si on déclare la visibilité du paramètre (ex: ici private). C'est toujours le cas, pas uniquement pour les services
         }
 
         #[Route ("/exemples/propre/service/injection/utilise/statistiques")]        
@@ -2653,7 +2667,6 @@ class Bonjour
 {
     public function __construct(private string $langue)
     {
-        $this->langue = $langue;
     }
     // service contenant un paramètre
     public function obtenirMessage()
@@ -2701,7 +2714,6 @@ class ExemplesServicesParamsController extends AbstractController
     
     // on utilise la méthode d'injection du service dans le controller
     public function __construct (private Bonjour $bonjour){
-        $this->bonjour = $bonjour;       
     }
     
     #[Route ("/exemples/propre/service/params")]
@@ -2733,8 +2745,7 @@ use Psr\Log\LoggerInterface;
 class StatistiquesLog {
    
     
-    function __construct (private LoggerInterface $logger){
-        $this->logger = $logger;
+    public function __construct (private LoggerInterface $logger){
     }
         
     function permutations($items, $perms = array( )) {
@@ -2773,11 +2784,9 @@ use App\Services\StatistiquesLog;
 // src/Controller/ExemplesServiceUtiliseService.php
 class ExemplesServiceUtiliseService extends AbstractController
 {
-    private $mesStats;
     // Le service StatistiquesLog utilise Logger
-    public function __construct(StatistiquesLog $mesStats)
+    public function __construct(private StatistiquesLog $mesStats)
     {
-        $this->mesStats = $mesStats;
     }
 
     #[Route("/exemples/propre/service/utilise/service")]
@@ -2856,10 +2865,7 @@ use Symfony\Component\Mime\Email;
 
 class StatistiquesLogMail {
    
-    function __construct (private LoggerInterface $logger, private MailerInterface $mailer, private $adresse){
-        $this->logger = $logger;
-        $this->mailer = $mailer;
-        $this->adresse = $adresse;
+    public function __construct (private LoggerInterface $logger, private MailerInterface $mailer, private string $adresse){
     }
         
     function permutations($items, $perms = array( )) {
@@ -2927,7 +2933,6 @@ class ExemplesPropreServiceInjectionParamsController extends AbstractController
         // on injecte le service diréctement dans le constructeur du controller
         // sans paramètres!
         public function __construct (private StatistiquesLogMail $mesStats){
-            $this->mesStats = $mesStats;
         }
         #[Route ("/exemples/propre/service/injection/utilise/statistiques/log/mail")]
         public function utiliseStatistiquesLogMail (){
@@ -2949,7 +2954,7 @@ le fichier **services.yaml** :
 # please note that last definitions always *replace* previous ones
     App\Services\StatistiquesLogMail:
        arguments: 
-           string $adresse: "yoyo@gmail.com"
+           $adresse: "yoyo@gmail.com"
 ```
 **Le paramètre doit porter le même nom que celui qu'on a rajouté dans le constructeur, autrement on obtient une erreur.**
 
@@ -2979,14 +2984,13 @@ Le service doit:
 
 ```php
 <?php
-namespace App\Service;
+namespace App\Services;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UploadHelper
 {
     public function __construct (private string $dossierUpload){
-        $this->dossierUpload = $dossierUpload;
     }
 
     public function uploadImagePays(UploadedFile $fichier): string
@@ -3214,7 +3218,7 @@ L'assistant créera les fichiers **/Entity/Livre.php** (la classe entité!) et *
 **Note:** On apprendra à éditer les entités dans la section 11.4 pour éviter de devoir recommencer à chaque fois qu'on se trompe, mais pour le moment recommencer est la meilleure option
 
 
-Ouvrez le fichier Livre.php et observez qu'il s'agit d'une classe normale qui représente un livre et qui **contient des annotations qui décrivent certains de caractéristiques des champs**. **Ces annotations seront utilisées par Doctrine pour générer automatiquement la base de données selon les types de notre choix**. Pour plus d'information sur les types de doctrine, allez sur :
+Ouvrez le fichier Livre.php et observez qu'il s'agit d'une classe normale qui représente un livre et qui **contient des attributs PHP 8+ qui décrivent certains de caractéristiques des champs**. **Ces attributs seront utilisés par Doctrine pour générer automatiquement la base de données selon les types de notre choix**. Pour plus d'information sur les types de doctrine, allez sur :
 
 <http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html>
 
@@ -3246,7 +3250,7 @@ symfony console doctrine:migration:migrate
 ```
 **Note :** Si vous le souhaitez, vous pouvez aussi créez les entités par
 vous-mêmes à la main, ou utiliser d'autres systèmes de notations au
-lieu des annotations tel que XML
+lieu des attributs PHP 8+ tel que XML
 
 <https://www.doctrine-project.org/projects/doctrine-orm/en/latest/reference/basic-mapping.html>
 
@@ -3256,7 +3260,7 @@ lieu des annotations tel que XML
 
 <br>
 
-Nous pouvons modifier nos entités facilement. Nous pouvons éditer le fichier à notre aise ou lancer à nouveau make:entity si on veut juste rajouter de nouvelles propriétés. Si on édite le fichier de l'entité (ici Livre.php) **à la main, on doit absolument créer les getters, setters et annotations pour les nouvelles propriétés**.
+Nous pouvons modifier nos entités facilement. Nous pouvons éditer le fichier à notre aise ou lancer à nouveau make:entity si on veut juste rajouter de nouvelles propriétés. Si on édite le fichier de l'entité (ici Livre.php) **à la main, on doit absolument créer les getters, setters et attributs pour les nouvelles propriétés**.
 
 Cette commande créera les getters et les setters pour nous:
 
@@ -3503,7 +3507,7 @@ Les opérations réalisées ont généré ce code dans les entités
 
 **On a créé une association bidirectionnelle de Many-to-One.** Observez que dans Livre il y aura une collection d'exemplaires et que dans Exemplaire aura un objet Livre. **Doctrine a généré** :
 
--   Les **annotations** (**>PHP8**) pour indiquer le type d'association entre les deux classes (on utilise *inversedBy* du côté *plusieurs* et *mappedBy* du coté *un*)
+-   Les **attributs PHP 8+** pour indiquer le type d'association entre les deux classes (on utilise *inversedBy* du côté *plusieurs* et *mappedBy* du coté *un*)
 
 -   Les **méthodes** get et set pour accéder aux objets des deux côtés de l'association. Dans le cas de la collection, de méthodes pour rajouter un élément à la collection et pour l'effacer de la collection.
 
@@ -3604,7 +3608,7 @@ symfony console doctrine:database:create
 
 Note: au lieu de partir de zéro vous auriez pu  aussi copier les entités du dossier Entity de **ProjetModeleSymfony** (Client.php, Exemplaire.php, Livre.php) dans **ProjetRelationsSymfony**. Mais attention : 
 - Il nous manquera les repositories que vous pouvez créer automatiquement avec **symfony console make:entity --regenerate**. 
-- Comme nous allons faire une relation différente entre **Client** et **Exemplaire** (ManyToMany au lieu de OneToMany) nous devons supprimer les annotations concernant cette relation (directement dans le code) 
+- Comme nous allons faire une relation différente entre **Client** et **Exemplaire** (ManyToMany au lieu de OneToMany) nous devons supprimer les attributs concernant cette relation (directement dans le code) 
 - Vous devez effacer les **sets** et **gets** concernés par la rélation - setExemplaires, getExemplaires.
    
 
@@ -4532,7 +4536,7 @@ Symfony remarque qu'on n'a pas fait **persist** des objets associés au Livre (l
     .
 ```
 
--   Spécifier que **la persistance doit se réaliser en cascade** dans l'annotation de l'association **(fichier de l'entité). Modifiez le fichier de l'entité Livre.php**
+-   Spécifier que **la persistance doit se réaliser en cascade** dans l'attribut de l'association **(fichier de l'entité). Modifiez le fichier de l'entité Livre.php**
 
 ```php
 #[ORM\OneToMany(mappedBy: 'livre', targetEntity: Exemplaire::class, orphanRemoval: true, cascade:['persist', 'remove'])]
@@ -4680,7 +4684,7 @@ class ClientH extends PersonneH {...}
 **DiscriminatorMap** indique les valeurs concretes de la colonne indiquée dans DiscriminatorColumn
 
 ```php
-// n'oubliez pas d'importer ces annotations
+// n'oubliez pas d'importer ces attributs
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
@@ -4763,7 +4767,7 @@ Nous n'allons pas développer cette méthode maintenant mais vous avez la docume
 
 <https://www.doctrine-project.org/projects/doctrine-orm/en/2.6/reference/inheritance-mapping.html#class-table-inheritance>
 
-Attention à bien transformer les annotations de Doctrine en attributs PHP tel qu'on a fait dans la Single Table Inheritance
+Attention à bien utiliser les attributs PHP de Doctrine tel qu'on a fait dans la Single Table Inheritance
 
 <br>
 
@@ -8032,7 +8036,7 @@ public function exempleAjaxAxiosFormEntiteTraiter(Request $req, SerializerInterf
     $livreJson = $serializer->serialize($livre, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['exemplaires']]);
     // On rajoute les exemplaires dans IGNORED_ATTRIBUTES pour éviter les références circulaires
     // (livre->exemplaires->livre->exemplaires...)
-    // Important: nous pourrions utiliser un système équivalent pour la serialisation avec des annotations, ou utiliser ATTRIBUTES au lieu d'IGNORED_ATTRIBUTES et sélectionner ce qu'on veut serialiser : 
+    // Important: nous pourrions utiliser un système équivalent pour la serialisation avec des attributs, ou utiliser ATTRIBUTES au lieu d'IGNORED_ATTRIBUTES et sélectionner ce qu'on veut serialiser : 
     
 
     // ici on a envoyé une JsonResponse où on inclut une clé-valeur livre. 
@@ -8653,7 +8657,7 @@ Scripts (on a utilisé webpack!):
 
 <br>
 
-**Important** : dans les routes qui seront accédées par ce bundle (regardez le code dans le controller) vous devez rajouter le paramètre **{"expose"=true}** (utilisez des annotations pour ces routes). Le code du projet inclut déjà cette option.
+**Important** : dans les routes qui seront accédées par ce bundle (regardez le code dans le controller) vous devez rajouter le paramètre **{"expose"=true}** (utilisez des attributs pour ces routes). Le code du projet inclut déjà cette option.
 
 <br>
 
@@ -9924,7 +9928,7 @@ BD) et essayez de lancer les actions gestion/action1 et gestion/action2 (depuis 
 ### 26.2.2. Dans le controller
 
 Si on ne veut pas créer de restrictions par routes dans **security.yaml**, on peut tout simplement **vérifier si l'utilisateur qui est connecté possède le rôle demandé**.
-La façon la plus simple est d'utiliser des **annotations pour l'action** (@IsGranted ou encore mieux, **@Security**. Regardez des exemples ici: 
+La façon la plus simple est d'utiliser des **attributs PHP 8+ pour l'action** (#[IsGranted] ou encore mieux, **#[Security]**. Regardez des exemples ici: 
 
 https://symfony.com/bundles/SensioFrameworkExtraBundle/current/annotations/security.html
 
@@ -9933,7 +9937,7 @@ Si l'utilisateur ne possède pas le rôle fixé dans l'action, **une exception s
 
 
 ```php
-    // exemple de contrôle d'accès en utilisant IsGranted (ici on a utilisé un attribut PHP, pas une annotation. Le résultat est le même)
+    // exemple de contrôle d'accès en utilisant IsGranted avec des attributs PHP 8+
     #[IsGranted('ROLE_ADMIN')]
     #[Route("/gestion/action2")]
     public function action2()
@@ -11042,7 +11046,7 @@ Nous pouvons créer nos propres commandes de console pour les lancer avec **symf
 
 1. Créez le dossier src/Command
 2. Créez une classe portant le nom de votre commande. Elle doit hériter de la class **Command**
-3. Utilisez l'annotation **AsCommand** juste avant la classe pour spécifier la ligne de commande et la description de la commande
+3. Utilisez l'attribut **AsCommand** juste avant la classe pour spécifier la ligne de commande et la description de la commande
 4. Implementez la fonction **execute**   
 
 ```php
@@ -11477,7 +11481,7 @@ class ResponseContainerCountry {
 
 **3. Correspondance entre le JSON et les entités:**
 
-Nous faisons les mapping en utilisant des annotations :
+Nous faisons les mapping en utilisant des attributs :
 
 **@SerializedName**
 
