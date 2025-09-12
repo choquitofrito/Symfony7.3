@@ -10,7 +10,7 @@ use App\Form\LivreGenreType;
 // les classes des Formulaires
 use Symfony\Component\HttpFoundation\Request;
 
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 

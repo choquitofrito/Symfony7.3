@@ -58,8 +58,8 @@ when@test:
 
 
     # access_control:
-    #     - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-    #     - { path: ^/reset-password, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    #     - { path: ^/login, roles: PUBLIC_ACCESS }
+    #     - { path: ^/reset-password, roles: PUBLIC_ACCESS }
     #     - { path: ^/, roles: ROLE_USER } # ROLE_ADMIN es también ROLE_USER (herencia más abajo)
     # role_hierarchy:
     #     ROLE_ADMIN: ROLE_USER
