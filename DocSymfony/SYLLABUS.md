@@ -957,20 +957,25 @@ use Symfony\Component\HttpFoundation\Request;
 ```
 
 
-**Exemple** : Utilisation de l'objet Request
+**Exemple** : Accès aux paramètres de route
 
-Créez l'action suivante dans le controller ContactsController (rajoutez
-la route !) et lancez-la dans le navigateur
+Il y a deux façons d'accéder aux paramètres de route dans Symfony 7.3 :
 
+**Option 1 : Injection automatique des paramètres (recommandée)**
 ```php
-// L'objet Request rajouté dans la signature de l'action contiendra les données
-// de la requête faite au serveur. En ce qui nous concerne maintenant,il 
-// contiendra les valeurs des paramètres de l'URL.
-
 #[Route("/contacts/message/request/{prenom}/{profession}")]
-public function messageRequest(Request $objetRequest)
+public function messageRequest(string $prenom, string $profession)
 {
-    echo "Je suis dans le controller, action 'afficher'";
+    // Les paramètres de route sont automatiquement injectés comme arguments de méthode
+    return new Response("<br>Le prénom dans l'URL est:" . $prenom . "<br>La profession dans l'URL est:" . $profession);
+}
+```
+
+**Option 2 : Utilisation de l'objet Request (traditionnelle)**
+```php
+#[Route("/contacts/message/request/{prenom}/{profession}")]
+public function messageRequestAvecRequest(Request $objetRequest)
+{
     // on obtient les valeurs des paramètres de l'url,
     // on fait appel à la méthode get de l'objet Request
     $lePrenom = $objetRequest->get("prenom");
