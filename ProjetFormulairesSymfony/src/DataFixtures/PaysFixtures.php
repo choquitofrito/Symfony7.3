@@ -9,7 +9,7 @@ use App\Entity\Pays;
 class PaysFixtures extends Fixture
 {
     // load créera et stockera 20 pays dans la BD
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
         for ($i = 0; $i < 20; $i++) {
             $pays = new Pays();

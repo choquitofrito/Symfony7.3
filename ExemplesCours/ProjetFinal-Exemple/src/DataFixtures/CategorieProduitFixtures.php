@@ -29,7 +29,7 @@ class CategorieProduitFixtures extends Fixture implements DependentFixtureInterf
         $manager->flush();
     }
 
-    public function getDependencies(): array
+    public function getDependencies():array
     {
         return (
             [

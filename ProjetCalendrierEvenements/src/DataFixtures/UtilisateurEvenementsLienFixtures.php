@@ -17,7 +17,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 class UtilisateurEvenementsLienFixtures extends Fixture implements DependentFixtureInterface
 {
 
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         $rep = $manager->getRepository(Evenement::class);
         $evenements = $rep->findAll();
@@ -33,7 +33,7 @@ class UtilisateurEvenementsLienFixtures extends Fixture implements DependentFixt
 
     }
 
-    public function getDependencies()
+    public function getDependencies():array
     {
         return ([UtilisateurFixtures::class,
                 EvenementFixtures::class]);

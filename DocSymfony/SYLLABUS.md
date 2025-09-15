@@ -4824,7 +4824,7 @@ use App\Entity\Livre;
 
 class LivreFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
 
         for ($i = 0; $i < 10; $i++) {
@@ -4879,7 +4879,7 @@ use Faker;
 class ClientAdresseFixture extends Fixture
 {
     // on peux complexifier la création des fixtures mais on va le faire très simple ici
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
 
         $faker = Faker\Factory::create('fr_FR');
@@ -4961,7 +4961,7 @@ use App\Entity\Aeroport;
 
 class AeroportFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
 
         $faker = Faker\Factory::create();
@@ -5013,7 +5013,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 
 class ProduitFixtures extends Fixture
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         for ($i = 1; $i <= 100; $i++) {
             $produit = new Produit();
@@ -5045,7 +5045,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 
 class CommandeFixtures extends Fixture
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         for ($i = 1; $i <= 20; $i++) {
             $commande = new Commande();
@@ -5079,7 +5079,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
 class DetailCommandeFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
 
         // on obtient tous les commandes. Pour chaque Evenement on fixera un User random
@@ -5108,7 +5108,7 @@ class DetailCommandeFixtures extends Fixture implements DependentFixtureInterfac
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies():array
     {
         return ([
             ProduitFixtures::class,
@@ -5138,7 +5138,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
 class AuteurLivreFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
 
         // 1. Obtenir tous les Livres
@@ -5159,7 +5159,7 @@ class AuteurLivreFixtures extends Fixture implements DependentFixtureInterface
     }
 
     // fixer les dépéndances de cette fixture
-    public function getDependencies(): array
+    public function getDependencies():array
     {
         return [
             AuteurFixtures::class,
@@ -6136,7 +6136,7 @@ use App\Entity\Aeroport;
 
 class AeroportFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
 
         
@@ -9417,7 +9417,7 @@ class UserFixtures extends Fixture
          $this->passwordHasher = $passwordHasher;
     }
     
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
         for ($i = 0; $i < 10 ; $i++){
             $user = new User();
@@ -9808,7 +9808,7 @@ class UserFixtures extends Fixture
          $this->passwordHasher = $passwordHasher;
     }
     
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
         // on va créer 5 admins et 5 clients+gestionnaires
         for ($i = 0; $i < 5 ; $i++){

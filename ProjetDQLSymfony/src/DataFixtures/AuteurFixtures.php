@@ -13,7 +13,7 @@ use Faker;
 
 class AuteurFixtures extends Fixture
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
 
         $faker = Faker\Factory::create();

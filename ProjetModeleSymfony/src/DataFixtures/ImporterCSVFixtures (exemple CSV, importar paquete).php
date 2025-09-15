@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class ImporterCSVFixtures extends Fixture {
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
         $csv = Reader::createFromPath('%kernel.root_dir%/../src/DataFixtures/csv/art-transparency-data.csv');
         $csv->setHeaderOffset(0);

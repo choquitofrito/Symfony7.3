@@ -12,7 +12,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class SaisonFixtures extends Fixture
 {     
 
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         $saison1 = new Saison();
         $saison1->setNom("Janvier");

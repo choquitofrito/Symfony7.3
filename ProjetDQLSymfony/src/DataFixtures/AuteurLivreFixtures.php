@@ -10,7 +10,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
 class AuteurLivreFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
 
         // 1. Obtenir tous les Livres
@@ -31,7 +31,7 @@ class AuteurLivreFixtures extends Fixture implements DependentFixtureInterface
     }
 
     // fixer les dépéndances de cette fixture
-    public function getDependencies(): array
+    public function getDependencies():array
     {
         return [
             AuteurFixtures::class,

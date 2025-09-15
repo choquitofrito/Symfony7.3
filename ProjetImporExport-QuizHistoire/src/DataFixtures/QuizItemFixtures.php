@@ -10,7 +10,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 class QuizItemFixtures extends Fixture
 {
 
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         $faker = Factory::create();
 

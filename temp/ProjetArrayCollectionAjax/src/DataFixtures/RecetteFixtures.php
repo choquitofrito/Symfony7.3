@@ -10,7 +10,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
 class RecetteFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
 
         $rep = $manager->getRepository(User::class);
@@ -37,7 +37,7 @@ class RecetteFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies():array
 {
     return ([
        

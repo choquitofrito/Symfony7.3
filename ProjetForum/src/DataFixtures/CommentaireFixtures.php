@@ -10,7 +10,7 @@ use Faker\Factory;
 
 class CommentaireFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         $faker = Factory::create();
 
@@ -28,7 +28,7 @@ class CommentaireFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies(): array
+    public function getDependencies():array
     {
         return [
             UserFixtures::class,

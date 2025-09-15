@@ -114,7 +114,7 @@ $rep = $em->getRepository(Livre::class);
 - Obtenir un repo dans les fixtures:
 
 ```php 
-public function load(ObjectManager $manager)
+public function load(ObjectManager $manager):void
     {
         $repPaciente = $manager->getRepository(Paciente::class);
         $pacientes = $repPaciente->findAll();

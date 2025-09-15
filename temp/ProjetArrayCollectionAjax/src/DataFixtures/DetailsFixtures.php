@@ -11,7 +11,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
 class DetailsFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
     // on recupère toutes les recettes et tous les ingrédients
     $rep = $manager->getRepository(Recette::class);
@@ -40,7 +40,7 @@ class DetailsFixtures extends Fixture implements DependentFixtureInterface
     $manager->flush();
 }
 
-public function getDependencies()
+public function getDependencies():array
 {
     return ([
         IngredientFixtures::class,

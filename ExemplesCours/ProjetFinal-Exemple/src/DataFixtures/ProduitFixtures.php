@@ -9,7 +9,7 @@ use Faker;
 
 class ProduitFixtures extends Fixture
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         $faker = Faker\Factory::create('fr_BE');
 

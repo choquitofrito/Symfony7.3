@@ -11,7 +11,7 @@ use Faker\Factory;
 class ClientAdresseFixtures extends Fixture
 {
     // on peux complexifier la création des fixtures mais on va le faire très simple ici
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
 
 

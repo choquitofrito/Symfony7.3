@@ -9,7 +9,7 @@ use App\Entity\Aeroport;
 
 class AeroportFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
 
         $faker = Faker\Factory::create();

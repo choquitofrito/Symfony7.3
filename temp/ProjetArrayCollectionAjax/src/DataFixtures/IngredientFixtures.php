@@ -8,7 +8,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class IngredientFixtures extends Fixture
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         for ($i = 0; $i < 10; $i++) {
             $ingredient = new Ingredient();

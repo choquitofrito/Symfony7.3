@@ -10,7 +10,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 
 class ExemplaireFixtures extends Fixture
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
 
         $repLivres = $manager->getRepository(Livre::class);

@@ -14,7 +14,7 @@ use Faker;
 class EvenementFixtures extends Fixture
 {
 
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
 
         $faker = Faker\Factory::create('fr_FR');

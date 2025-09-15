@@ -19,7 +19,7 @@ class UtilisateurFixtures extends Fixture
          $this->passwordHasher = $passwordHasher;
     }
     
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
         // on va créer 3 admins et 3 clients+gestionnaires
         // sachez qu'ils auront par défaut aussi le ROLE_USER

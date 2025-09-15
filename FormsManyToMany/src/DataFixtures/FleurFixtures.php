@@ -15,7 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class FleurFixtures extends Fixture implements DependentFixtureInterface
 {       
 
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         
         $rep = $manager->getRepository(User::class);
@@ -43,7 +43,7 @@ class FleurFixtures extends Fixture implements DependentFixtureInterface
         
     }
 
-    public function getDependencies()
+    public function getDependencies():array
     {
         return ([
             UserFixtures::class

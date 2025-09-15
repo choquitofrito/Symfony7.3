@@ -25,7 +25,7 @@ class UserFixtures extends Fixture
          $this->passwordHasher = $passwordHasher;
     }
     
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager):void
     {
         // on va créer 5 admins et 5 clients+gestionnaires
         for ($i = 0; $i < 5 ; $i++){

@@ -13,7 +13,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
 class AnimalFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
         $faker = Faker\Factory::create();
 
@@ -27,7 +27,7 @@ class AnimalFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies(): array
+    public function getDependencies():array
     {
         return (
             [ProprietaireFixtures::class]

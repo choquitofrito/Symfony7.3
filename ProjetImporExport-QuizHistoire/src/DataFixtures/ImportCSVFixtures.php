@@ -29,7 +29,7 @@ class ImportCSVFixtures extends Fixture
     }
 
     // méthode qui réalise l'importation, elle reçoit le chemin du fichier complet
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
 
 

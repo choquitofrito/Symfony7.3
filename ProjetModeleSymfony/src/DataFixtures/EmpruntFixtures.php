@@ -14,7 +14,7 @@ use Faker;
 
 class EmpruntFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager):void
     {
 
         $faker = Faker\Factory::create();
@@ -58,7 +58,7 @@ class EmpruntFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies():array
     {
         return ([
             ClientFixtures::class,
