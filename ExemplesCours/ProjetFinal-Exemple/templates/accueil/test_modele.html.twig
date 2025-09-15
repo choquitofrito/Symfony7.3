@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    Voici la liste:
+    {# {{ dump (animaux) }} #}
+
+    <ul>
+    {% for animal in animaux %}
+        <li>{{ animal.nom }} </li>
+    {% endfor %}
+    </ul>
+
+{% endblock %}

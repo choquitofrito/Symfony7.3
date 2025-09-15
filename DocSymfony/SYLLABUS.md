@@ -3265,7 +3265,7 @@ Nous pouvons modifier nos entités facilement. Nous pouvons éditer le fichier �
 Cette commande créera les getters et les setters pour nous:
 
 ```console
-symfony console make:entity ---regenerate
+symfony console make:entity --regenerate
 ```
 
 Indiquez à Symfony le nom de l'entité avec son namespace: (ex : **App\Entity\Livre)**
