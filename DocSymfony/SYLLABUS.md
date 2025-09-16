@@ -6662,14 +6662,7 @@ class ExemplesFormulairesTraitementController extends AbstractController
             // (utile quand le form contient plus ou moins de champs que l'entité)
             // $data = $formulaireLivre->getData(); 
 
-            // Rendu d'une vue où on affiche les données
-            // Normalement on fera CRUD ici, ou une autre opération...
-            return $this->render(
-                '/exemples_formulaires_traitement/traitement_formulaire_livre.html.twig',
-                ['livre' => $livre]
-            );
-
-            // on aurait pu, au lieu d'afficher une vue, ré-diriger vers une autre action.
+            // On doit aussi envoyer une réponse, exemple: ré-diriger vers une autre action.
             // Le choix dépend des besoins
             // return $this->redirectToRoute("name_autre_action", { param1: $val1, param2: $val2 })
 
