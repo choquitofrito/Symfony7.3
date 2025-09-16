@@ -8,6 +8,7 @@
     <ul>
     {% for animal in animaux %}
         <li>{{ animal.nom }} </li>
+        <li>Prop: {{ animal.proprietaire.nom }}
     {% endfor %}
     </ul>
 

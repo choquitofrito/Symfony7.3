@@ -41,6 +41,7 @@ final class AccueilController extends AbstractController
         $rep = $em->getRepository(Animal::class);
         $arrayAnimaux = $rep->findAll();
 
+
         // $arrayAnimaux = $em->getRepository(Animal::class)->findAll();
         // dd($arrayAnimaux);
 
