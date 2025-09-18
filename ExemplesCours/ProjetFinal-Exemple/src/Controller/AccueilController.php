@@ -17,6 +17,8 @@ final class AccueilController extends AbstractController
     public function index(): Response
     {
 
+        dd($this->getUser());
+
 
         $adresse = ['rue' => 'Rue Van Aa',
                     'numero' => 203,
