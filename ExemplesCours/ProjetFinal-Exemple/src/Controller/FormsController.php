@@ -41,17 +41,27 @@ final class FormsController extends AbstractController
             // on stocke l'objet dans la BD
             $em->persist ($animal);
             $em->flush();
-            return $this->redirectToRoute('app_forms_resultat_traitement_form_insert');
+            return $this->redirectToRoute ('app_form_afficher_animaux');
         }
         // 2. On ne vient pas d'un submit, alors on affiche tout simplement le form
         else {
             $vars = ['formAnimal' => $formAnimal];
             return $this->render ('forms/affiche_form_insert_animal.html.twig', $vars);
         }
-
-
-
     }
+
+    #[Route('/forms/afficher/animaux', name:'app_form_afficher_animaux')]
+    public function afficherAnimaux (EntityManagerInterface $em){
+        // Envoyer à une vue tous les animaux de la BD
+        // La vue les affichera
+        $rep = $em->getRepository(Animal::class);
+        $arrayAnimaux = $rep->findAll();
+
+        $vars = ['animaux' => $arrayAnimaux];
+        return $this->render ('forms/afficher_animaux.html.twig', $vars);
+    }
+
+    
 
 
 }

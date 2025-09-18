@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {# {{ dump (animaux) }} #}
+    {% for animal in animaux %}
+        {{ animal.nom }}
+        {{ animal.couleur }}
+    {% endfor %}
+{% endblock %}
