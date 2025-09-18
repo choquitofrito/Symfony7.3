@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -39,6 +41,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTime $dateNaissance = null;
+
+    /**
+     * @var Collection<int, Animal>
+     */
+    #[ORM\OneToMany(targetEntity: Animal::class, mappedBy: 'possedeur')]
+    private Collection $animauxPossedes;
+
+    public function __construct()
+    {
+        $this->animauxPossedes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -141,6 +154,36 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDateNaissance(?\DateTime $dateNaissance): static
     {
         $this->dateNaissance = $dateNaissance;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Animal>
+     */
+    public function getAnimauxPossedes(): Collection
+    {
+        return $this->animauxPossedes;
+    }
+
+    public function addAnimauxPossede(Animal $animauxPossede): static
+    {
+        if (!$this->animauxPossedes->contains($animauxPossede)) {
+            $this->animauxPossedes->add($animauxPossede);
+            $animauxPossede->setPossedeur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnimauxPossede(Animal $animauxPossede): static
+    {
+        if ($this->animauxPossedes->removeElement($animauxPossede)) {
+            // set the owning side to null (unless already changed)
+            if ($animauxPossede->getPossedeur() === $this) {
+                $animauxPossede->setPossedeur(null);
+            }
+        }
 
         return $this;
     }

@@ -22,6 +22,9 @@ class Animal
     #[ORM\ManyToOne(inversedBy: 'animaux')]
     private ?Proprietaire $proprietaire = null;
 
+    #[ORM\ManyToOne(inversedBy: 'animauxPossedes')]
+    private ?Utilisateur $possedeur = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +62,18 @@ class Animal
     public function setProprietaire(?Proprietaire $proprietaire): static
     {
         $this->proprietaire = $proprietaire;
+
+        return $this;
+    }
+
+    public function getPossedeur(): ?Utilisateur
+    {
+        return $this->possedeur;
+    }
+
+    public function setPossedeur(?Utilisateur $possedeur): static
+    {
+        $this->possedeur = $possedeur;
 
         return $this;
     }

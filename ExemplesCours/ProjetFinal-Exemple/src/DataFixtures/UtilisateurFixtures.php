@@ -30,6 +30,10 @@ class UtilisateurFixtures extends Fixture
             $utilisateur->setDateNaissance($faker->dateTimeBetween('-80 years', '-18 years'));
             $utilisateur->setRoles(['ROLE_USER']);
             $utilisateur->setPassword($this->hasher->hashPassword($utilisateur, "password" . $i));
+            
+            // créer une référence qui sera accéssible depuis partout (toutes les fixtures)
+            $this->addReference("utilisateur" . $i, $utilisateur);
+            
             $manager->persist($utilisateur);
         }
         for ($i = 1; $i <= 5; $i++) {
@@ -41,6 +45,9 @@ class UtilisateurFixtures extends Fixture
             $utilisateur->setRoles(['ROLE_ADMIN']);
             $utilisateur->setPassword($this->hasher->hashPassword($utilisateur, "password" . $i));
             $manager->persist($utilisateur);
+
+            // créer une référence qui sera accéssible depuis partout (toutes les fixtures)
+            $this->addReference("admin" . $i, $utilisateur);
         }
         $manager->flush();
 
