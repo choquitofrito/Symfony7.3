@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<select id="select_proprietaire" data-route="{{ path ('app_affichage_select') }}">
+    <option value="">Selectionnez</option>
+    {% for proprietaire in proprietaires %}
+        <option value="{{ proprietaire.id }}">{{ proprietaire.nom }} </option>
+    {% endfor %}
+
+</select>
+
+<h1>Afficher les animaux</h1>
+
+{% for animal in animaux %}
+    <br>{{ animal.nom }}
+
+{% endfor %}
+
+
+<script>
+const selectProprietaire = document.querySelector('#select_proprietaire');
+
+selectProprietaire.addEventListener ("change", function (event) {
+
+    console.log ("on change! " + event.target.value);
+
+    const idProprietaire = event.target.value;
+
+    // faire appel à l'action du controller!
+
+    const route = selectProprietaire.dataset.route;
+
+    window.location.href = route + "?id_proprietaire=" + idProprietaire;
+
+
+    // window.location.href = "/affichage/select/" + idProprietaire;
+
+});
+</script>
+
+{% endblock %}
+

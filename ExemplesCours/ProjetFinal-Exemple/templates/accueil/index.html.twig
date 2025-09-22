@@ -3,11 +3,11 @@
 {% block title %}Hello AccueilController!{% endblock %}
 
 {% block body %}
-Bonjour, bienvenue au site
 
-<br>Voici le nom {{ nom }} 
-<br>Voici le hobby {{ hobby }}
-<br>Voici la date de naissance {{ dateNaissance.format("Y-m-d") }}
-<br>On habite: {{ adresse.rue }}, numéro: {{ adresse.numero }}
-<br>Commune: {{ adresse.codePostal }}
+<h5>Proprietaires ("Categories")</h5>
+{% for proprietaire in proprietaires %}
+    <a href="{{ path('app_animal_afficher', {id_proprietaire: proprietaire.id } ) }}">{{ proprietaire.nom }}</a>
+{% endfor %}
+
+
 {% endblock %}

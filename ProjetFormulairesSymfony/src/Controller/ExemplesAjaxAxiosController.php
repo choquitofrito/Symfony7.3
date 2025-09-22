@@ -74,6 +74,7 @@ class ExemplesAjaxAxiosController extends AbstractController
     #[Route("/exemples/ajax/axios/form/entite/traiter", name: "exemple_axios_form_entite_traiter")]
     public function exempleAjaxAxiosFormEntiteTraiter(Request $req, SerializerInterface $serializer)
     {
+
         // ATTENTION à comment créer l'entité à partir du FormData!!!
         // Quand on utilise un FormData on doit passer par handleRequest, car FormData envoie tout en string
         // et nous avons besoin de DateTime pour le Dates. HandleRequest fait l'hydrate proprement pour nous
@@ -102,7 +103,7 @@ class ExemplesAjaxAxiosController extends AbstractController
 
         // Note: On a besoin de l'entité en JSON. On doit la serialiser avant de l'envoyer (seule manière propre), en ignorant les exemplaires 
         $livreJson = $serializer->serialize($livre, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['exemplaires']]);
-
+        
         // On rajoute les exemplaires dans IGNORED_ATTRIBUTES pour éviter les références circulaires
         // (livre->exemplaires->livre->exemplaires...)
         // Important: nous pourrions utiliser un système équivalent pour la serialisation avec des annotations, ou utiliser ATTRIBUTES au lieu d'IGNORED_ATTRIBUTES et sélectionner ce qu'on veut serialiser : 

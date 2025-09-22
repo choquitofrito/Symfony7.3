@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AffichageController!{% endblock %}
+
+{% block body %}
+
+
+{% for proprietaire in proprietaires %}
+    {# {{ dump (proprietaire) }} #}
+    <a href="{{ path('app_affichage', {id_proprietaire:proprietaire.id}) }}">{{ proprietaire.nom }}</a>
+{% endfor %}
+
+{% for animal in animaux %}
+    <br>{{ animal.nom }}
+{% endfor %}
+
+
+{% endblock %}

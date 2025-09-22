@@ -10,29 +10,21 @@ use Symfony\Component\Routing\Attribute\Route;
 
 // importer les entities
 use App\Entity\Animal;
+use App\Entity\Proprietaire;
 
 final class AccueilController extends AbstractController
 {
     #[Route('/accueil', name: 'app_accueil')]
-    public function index(): Response
+    public function index(EntityManagerInterface $em): Response
     {
 
-        dd($this->getUser());
+        // obtenir tous le éléments du Côté Propriétaire (côté 1)
+        $rep= $em->getRepository(Proprietaire::class);
+        $arrayProprietaires = $rep->findAll();
 
+        $vars = ['proprietaires' => $arrayProprietaires];
 
-        $adresse = ['rue' => 'Rue Van Aa',
-                    'numero' => 203,
-                    'codePostal' => '1050'
-        ];
-
-        $vars = ['nom' => 'Jean', // passage de variable simple
-                'hobby' => 'natation',
-                'dateNaissance' => new \DateTime ("2000-1-6"), // passage d'un objet
-                'adresse' => $adresse
-        ]; 
-        
-        // dd ($vars);
-
+       
         return $this->render('accueil/index.html.twig', $vars);
 
     }
@@ -55,4 +47,7 @@ final class AccueilController extends AbstractController
         return $this->render('accueil/test_modele.html.twig', $vars);
 
     }
+
+
+
 }
