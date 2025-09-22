@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+
 // importer les entities
 use App\Entity\Animal;
 
@@ -15,6 +16,8 @@ final class AccueilController extends AbstractController
     #[Route('/accueil', name: 'app_accueil')]
     public function index(): Response
     {
+
+        dd($this->getUser());
 
 
         $adresse = ['rue' => 'Rue Van Aa',
