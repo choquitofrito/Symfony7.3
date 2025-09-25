@@ -12,11 +12,15 @@ use Symfony\Component\Routing\Attribute\Route;
 // imports
 use Symfony\Component\HttpFoundation\Request;
 
+
+
+
 final class AjaxController extends AbstractController
 {
     #[Route('/ajax/form/independant', name: 'app_ajax_form_independant')]
     public function formIndependant(): Response
     {
+        
         return $this->render('ajax/form_independant.html.twig');
     }
 
